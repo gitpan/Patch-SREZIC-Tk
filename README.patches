@@ -1,0 +1,36 @@
+README for the patches directory
+--------------------------------
+
+* Canvas_canvtxt: adjust scrollregion for .../Canvas/canvtxt
+
+* Makefile.PL: also install the gedi editor
+
+* demos_demos_widget_lib_menus.pl: hmmm... can't remember the reason
+  for this one
+
+* demos_demos_widtrib_Gedi.pl: adjust height to not exceed screen
+
+* messageBox.diff: deprecate the -text option in messageBox, because
+  it's not supported on Win32 (TODO: put into Patch-SREZIC/Tk/Tk/Tk.pm)
+
+* pTkCallback.c.diff: setting callbacks which are not in the array form
+  [...] but a normal sub reference leaked
+
+* pod_Animation.pod: documentation fix (against 800.022)
+
+* tk-wm-patch: ??? (against 800.022)
+
+* tkGlue.c-langsavevar: ???
+
+* tkGlue.c-memoryleak:
+  - avoid memory leak for $widget->destroy
+  - avoid memory leak in some canvas methods when using ids instead of tags
+
+* tkGlue_diagnostics.diff: use Carp::confess instead of croak, so
+  better diagnostics on many places
+
+* tkPlace.c.diff: use doubles instead of ints for -relwidth/height
+
+* hlist22.tar.gz: patches to the tix C files for HList and DItem by Rob Seegel
+
+* Tk.xs.diff: add method GetPixmap

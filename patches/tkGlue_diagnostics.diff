@@ -1,0 +1,20 @@
+--- Tk800.023/tkGlue.c	Wed May 16 15:36:34 2001
++++ new.Tk800.023/tkGlue.c	Sun Jun 24 22:39:10 2001
+@@ -2258,7 +2258,16 @@
+        PL_tainted = old_taint;
+        DecInterp(interp, "Call_Tk");
+        SvREFCNT_dec(what);
+-       croak("%s",SvPV(msg,na));
++
++       ENTER;
++       SAVETMPS;
++       PUSHMARK(SP);
++       XPUSHs(msg);
++       PUTBACK;
++       perl_call_pv("Carp::confess", G_DISCARD);
++       FREETMPS;
++       LEAVE; 
++       /* XXX croak("%s",SvPV(msg,na)); */
+       }
+     }
+    else

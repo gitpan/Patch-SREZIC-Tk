@@ -1,0 +1,20 @@
+--- Tk800.023/pTk/tkPlace.c	Wed May 16 15:38:59 2001
++++ new.Tk800.023/pTk/tkPlace.c	Tue Sep 25 09:01:44 2001
+@@ -272,7 +272,7 @@
+ 	}
+ 	if (slavePtr->flags & CHILD_REL_WIDTH) {
+ 	    Tcl_AppendElement(interp,"-relwidth");
+-	    Tcl_IntResults(interp,1,1, slavePtr->relWidth);
++	    Tcl_DoubleResults(interp,1,1, slavePtr->relWidth);
+ 	} else {
+ 	    Tcl_AppendElement(interp,"-relwidth");
+ 	    Tcl_AppendElement(interp,"");
+@@ -286,7 +286,7 @@
+ 	}
+ 	if (slavePtr->flags & CHILD_REL_HEIGHT) {
+ 	    Tcl_AppendElement(interp,"-relheight");
+-	    Tcl_IntResults(interp,1,1, slavePtr->relHeight);
++	    Tcl_DoubleResults(interp,1,1, slavePtr->relHeight);
+ 	} else {
+ 	    Tcl_AppendElement(interp,"-relheight");
+ 	    Tcl_AppendElement(interp,"");

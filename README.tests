@@ -1,0 +1,52 @@
+README for the t directory
+--------------------------------
+
+* balloon.t
+  - added test for attachment of Listbox items
+
+* busy.t
+  - new code feature
+
+* dialogbox.t
+  - new one-button close feature
+
+* entry-validate.t
+  - validate method
+
+* entry.t
+  - conversion of original Tcl/Tk test suite
+
+* fbox.t
+  - two MainWindows with FBox dialogs
+
+* hlist.t
+  - test by Rob Seegel
+
+* iconlist.t
+  - test for new bindings
+
+* leak.t
+  - leaking subroutine set
+  - leaking Tk_GetUid (e.g. canvas items)
+  - leaking widget destroys
+
+* listbox-nextprior.t
+  - Next/Prior with activate
+
+* listbox.t
+  - conversion of original Tcl/Tk test suite
+
+* mousewheel.t
+  - mouse wheel tests
+
+* pane.t
+  - missing submethods (e.g. gridRowconfigure)
+
+* text.t
+  - NYI
+
+* wm-popup.t
+  - slow dialog raises
+
+* wm-post.t
+  - slow dialog raises

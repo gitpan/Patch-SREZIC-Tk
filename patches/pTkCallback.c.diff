@@ -1,0 +1,12 @@
+--- Tk800.023/Event/pTkCallback.c	Wed May 16 15:36:32 2001
++++ new.Tk800.023/Event/pTkCallback.c	Sat Mar  2 20:28:11 2002
+@@ -66,7 +66,8 @@
+      if (SvTYPE(SvRV(sv)) == SVt_PVCV)
+       {
+        AV *av = newAV();
+-       av_push(av,SvREFCNT_inc(sv));  /* Increment REFCNT ! */
++       /*       av_push(av,SvREFCNT_inc(sv));*/  /* Increment REFCNT ! */
++       av_push(av,sv);  /* changed by SRT: do not increment REFCNT ! */
+        sv = newRV_noinc((SV *) av);
+       }
+     }

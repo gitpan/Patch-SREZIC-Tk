@@ -1,0 +1,21 @@
+--- Tk800.023/tkGlue.c	Wed Oct 24 00:13:58 2001
++++ new.Tk800.023/tkGlue.c	Sat Mar  2 21:38:43 2002
+@@ -3051,6 +3051,7 @@
+        if (info->interp != interp)
+         Tcl_Panic("%s->interp=%p expected %p", cmdName, info->interp, interp);
+        DecInterp(info->interp, cmdName);
++       SvREFCNT_dec(mg->mg_obj); /* added by SRT: prevents memory leak */
+        sv_unmagic((SV *) hash,'~');
+       }
+     }
+@@ -5143,7 +5144,9 @@
+     HE *he;
+     if (!uidHV)
+      uidHV = newHV();
+-    he = hv_fetch_ent(uidHV,svkey,1,0);
++    he = hv_fetch_ent(uidHV,svkey,0,0); /* added by SRT: prevents leak of auto-created SVs */
++    if (!he)
++     he = hv_store_ent(uidHV,svkey,Nullsv,0); /* ... */
+     SvREFCNT_dec(svkey);
+     return (Tk_Uid) HePV(he,klen);
+ }

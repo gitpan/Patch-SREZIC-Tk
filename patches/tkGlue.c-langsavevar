@@ -1,0 +1,10 @@
+--- Tk800.023/tkGlue.c	Wed May 16 15:36:34 2001
++++ new.Tk800.023/tkGlue.c	Thu Jun 28 10:12:04 2001
+@@ -3875,6 +3875,7 @@
+ #else
+    CopSTASH(PL_curcop) = NULL;
+ #endif
++   warn("Using symbolic references is deprecated. Please use the \\$var syntax");
+    switch (type)
+     {
+      case TK_CONFIG_SCALARVAR:
