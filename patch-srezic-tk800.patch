@@ -53,14 +53,15 @@ exit
 gdiff -up /dev/null '/usr/local/src/work/Tk800/BUGS'
 Index: ./BUGS
 *** ./BUGS	Thu Jan  1 01:00:00 1970
---- ./BUGS	Fri May  9 08:36:22 2003
+--- ./BUGS	Sat Jun 21 22:40:04 2003
 ***************
 *** 0 ****
---- 1,34 ----
+--- 1,57 ----
 + BUGS
 + 
 + - $w->cget(-cursor) returns a wrong value if the -cursor was
-+   constructed with an anonymous array
++   constructed with an anonymous array. Workaround: use the Tcl notation, e.g.
++   -cursor => '{@/path/to/your/cursor.xbm} red blue'
 + 
 + - sporadic core dumps on the end of bbbike with the following backtrace:
 + #0  0x283f5594 in Tk_CanvasEventuallyRedraw ()
@@ -88,6 +89,28 @@ Index: ./BUGS
 +   which is populated by the references to all containing BrowseEntries.
 +   The references are deleted OnDestroy of the BrowseEntry.
 + 
++ - Reported in Message-ID: <20030613095141.GA10412@zen.lcu>: The oneliners
++ 
++   perl -e 'use Tk; tkinit()->Button(-text => 'Exit', -command => sub {exit 1})->pack; MainLoop();'
++ 
++   and
++ 
++   perl -e 'require Tk; import Tk; tkinit()->Button(-text => 'Exit', -command => sub {exit 1})->pack; MainLoop();'
++ 
++   may cause segmentation faults or "Callback called exit" messages.
++   The best is to avoid exit() at all and use $mw->destroy.
++ 
++ - cygwin:
++   Expect 8 subtest failures:
++   * all TList related tests fail
++   * fileevent does not work
++ 
++ - Excess space in TopLevels (Message-ID:
++   <yP%Ga.54900$nr.4758453@twister.southeast.rr.com>): this may be
++   related to the well-known "slow raise" problem in conjunction with
++   some weird layoutRequest code in Tk::ProgressBar
++ 
++ - Tk builds do not work if the source directory path contains spaces.
 + 
 + Please report bugs to either the Perl/Tk Mailing list
 + <ptk@lists.Stanford.EDU> or the Perl/Tk Newsgroup <comp.lang.perl.tk>.
@@ -121,6 +144,21 @@ Index: ./Canvas/canvtxt
   return \@txt;
  }
 +
+gdiff -up '/usr/local/src/Tk800.024/Compound/Compound.xs' '/usr/local/src/work/Tk800/Compound/Compound.xs'
+Index: ./Compound/Compound.xs
+--- ./Compound/Compound.xs	Tue Nov  9 13:51:08 1999
++++ ./Compound/Compound.xs	Tue Jun 17 01:24:06 2003
+@@ -33,8 +33,8 @@ PROTOTYPES: DISABLE
+ BOOT:
+  {
+   IMPORT_VTABLES;  
+-  TixVptr     =     (TixVtab *) SvIV(perl_get_sv("Tk::TixVtab",5));    
+-  TixintVptr  =  (TixintVtab *) SvIV(perl_get_sv("Tk::TixintVtab",5));  
++  TixVptr     =     INT2PTR(TixVtab *, SvIV(perl_get_sv("Tk::TixVtab",5)));    
++  TixintVptr  =  INT2PTR(TixintVtab *, SvIV(perl_get_sv("Tk::TixintVtab",5)));  
+ 
+   Tk_CreateImageType(&tixCompoundImageType);
+  }
 gdiff -up '/usr/local/src/Tk800.024/DragDrop/DragDrop.pm' '/usr/local/src/work/Tk800/DragDrop/DragDrop.pm'
 Index: ./DragDrop/DragDrop.pm
 --- ./DragDrop/DragDrop.pm	Fri Apr 21 11:56:19 2000
@@ -177,21 +215,35 @@ Prereq:  1.22
 gdiff -up '/usr/local/src/Tk800.024/Event/Event.pm' '/usr/local/src/work/Tk800/Event/Event.pm'
 Index: ./Event/Event.pm
 --- ./Event/Event.pm	Tue Mar  5 15:27:40 2002
-+++ ./Event/Event.pm	Sat May  3 12:00:30 2003
++++ ./Event/Event.pm	Sat Jun  7 21:28:26 2003
 @@ -2,7 +2,7 @@ package Tk::Event;
  use vars qw($VERSION $XS_VERSION @EXPORT_OK);
  END { CleanupGlue() }
  $VERSION = '3.026'; # $Id: //depot/Tk8/Event/Event.pm#26 $
 -$XS_VERSION = '800.024';
-+$XS_VERSION = '800.024011';
++$XS_VERSION = '800.024012';
  require DynaLoader;
  use base  qw(Exporter DynaLoader);
  @EXPORT_OK = qw($XS_VERSION DONT_WAIT WINDOW_EVENTS  FILE_EVENTS
 gdiff -up '/usr/local/src/Tk800.024/Event/Event.xs' '/usr/local/src/work/Tk800/Event/Event.xs'
 Index: ./Event/Event.xs
 --- ./Event/Event.xs	Mon Jan  7 10:35:44 2002
-+++ ./Event/Event.xs	Fri Apr 25 16:22:04 2003
-@@ -219,7 +219,7 @@ long
++++ ./Event/Event.xs	Tue Jun 17 01:45:18 2003
+@@ -15,6 +15,13 @@
+ #include "pTk/tkEvent.h"
+ #include "pTk/tkEvent_f.h"
+ 
++#ifndef INT2PTR
++#define INT2PTR(any,d) (any)(d)
++#endif
++#ifndef PTR2IV
++#define PTR2IV(p)	INT2PTR(IV,p)
++#endif
++
+ void
+ LangDebug(char *fmt,...)
+ {
+@@ -219,7 +226,7 @@ long
  Lang_OSHandle(fd)
  int fd;
  {
@@ -200,7 +252,16 @@ Index: ./Event/Event.xs
   return win32_get_osfhandle(fd);
  #else
   return fd;
-@@ -295,7 +295,8 @@ typedef struct PerlIOHandler
+@@ -252,7 +259,7 @@ size_t size;
+    typedef int (*fptr)_((void));
+    fptr *q = table;
+    unsigned i;
+-   sv_setiv(FindVarName(name,GV_ADD|GV_ADDMULTI),(IV) table);
++   sv_setiv(FindVarName(name,GV_ADD|GV_ADDMULTI),PTR2IV(table));
+    if (size % sizeof(fptr))
+     {
+      warn("%s is strange size %d",name,size);
+@@ -295,7 +302,8 @@ typedef struct PerlIOHandler
    int handlerMask;                /* Events for which we have callbacks */
    int callingMask;                /* Events for which we are in callbacks */
    int pending;
@@ -210,7 +271,7 @@ Index: ./Event/Event.xs
  
  typedef struct PerlIOEvent
   {
-@@ -600,10 +601,12 @@ int flags;                        /* Fla
+@@ -600,10 +608,12 @@ int flags;                        /* Fla
           SV *sv = filePtr->readHandler;
           ENTER;
           SAVETMPS;
@@ -223,7 +284,7 @@ Index: ./Event/Event.xs
           FREETMPS;
           LEAVE;
          }
-@@ -612,10 +615,12 @@ int flags;                        /* Fla
+@@ -612,10 +622,12 @@ int flags;                        /* Fla
           SV *sv = filePtr->writeHandler;
           ENTER;
           SAVETMPS;
@@ -236,7 +297,7 @@ Index: ./Event/Event.xs
           FREETMPS;
           LEAVE;
          }
-@@ -624,10 +629,12 @@ int flags;                        /* Fla
+@@ -624,10 +636,12 @@ int flags;                        /* Fla
           SV *sv = filePtr->exceptionHandler;
           ENTER;
           SAVETMPS;
@@ -249,7 +310,7 @@ Index: ./Event/Event.xs
           FREETMPS;
           LEAVE;
          }
-@@ -716,6 +723,7 @@ int mask;                         /* OR'
+@@ -716,6 +730,7 @@ int mask;                         /* OR'
   filePtr->waitMask    = mask;
   filePtr->pending     = 0;
   filePtr->nextPtr     = firstPerlIOHandler;
@@ -271,6 +332,32 @@ Index: ./Event/pTkCallback.c
         sv = newRV_noinc((SV *) av);
        }
      }
+gdiff -up '/usr/local/src/Tk800.024/Event/typemap' '/usr/local/src/work/Tk800/Event/typemap'
+Index: ./Event/typemap
+--- ./Event/typemap	Tue Jul 27 20:20:05 1999
++++ ./Event/typemap	Tue Jun 17 01:58:54 2003
+@@ -1,12 +1,12 @@
+-Tcl_TimerProc *			T_IV 
+-Tcl_IdleProc *			T_IV
+-Tcl_ExitProc *			T_IV
+-Tcl_FileProc *			T_IV
+-Tcl_EventProc *			T_IV
+-ClientData			T_IV
+-Tcl_QueuePosition		T_IV
+-Tcl_Event *			T_IV
+-Tcl_TimerToken			T_IV
++Tcl_TimerProc *			T_PTR
++Tcl_IdleProc *			T_PTR
++Tcl_ExitProc *			T_PTR
++Tcl_FileProc *			T_PTR
++Tcl_EventProc *			T_PTR
++ClientData			T_PTR
++Tcl_QueuePosition		T_PTR
++Tcl_Event *			T_PTR
++Tcl_TimerToken			T_PTR
+ PerlIOHandler *			T_TK_IOHANDLER
+ 
+ INPUT
 gdiff -up '/usr/local/src/Tk800.024/HList/HList.pm' '/usr/local/src/work/Tk800/HList/HList.pm'
 Index: ./HList/HList.pm
 --- ./HList/HList.pm	Sat Sep 29 19:48:16 2001
@@ -283,6 +370,43 @@ Index: ./HList/HList.pm
  
   $mw->bind($class,'<Return>', ['KeyboardActivate']);
   $mw->bind($class,'<space>',  ['KeyboardBrowse']);
+gdiff -up '/usr/local/src/Tk800.024/HList/HList.xs' '/usr/local/src/work/Tk800/HList/HList.xs'
+Index: ./HList/HList.xs
+--- ./HList/HList.xs	Tue Jul 27 20:20:05 1999
++++ ./HList/HList.xs	Tue Jun 17 01:30:04 2003
+@@ -38,6 +38,6 @@ CODE:
+ BOOT:
+  {
+   IMPORT_VTABLES;
+-  TixVptr     =     (TixVtab *) SvIV(perl_get_sv("Tk::TixVtab",5));    
+-  TixintVptr  =  (TixintVtab *) SvIV(perl_get_sv("Tk::TixintVtab",5)); 
++  TixVptr     =     INT2PTR(TixVtab *, SvIV(perl_get_sv("Tk::TixVtab",5)));
++  TixintVptr  =  INT2PTR(TixintVtab *, SvIV(perl_get_sv("Tk::TixintVtab",5)));
+  }
+gdiff -up '/usr/local/src/Tk800.024/IO/IO.xs' '/usr/local/src/work/Tk800/IO/IO.xs'
+Index: ./IO/IO.xs
+--- ./IO/IO.xs	Fri Sep  8 11:27:27 2000
++++ ./IO/IO.xs	Tue Jun 17 01:25:12 2003
+@@ -294,5 +294,5 @@ InputStream	f
+ 
+ BOOT:
+  {
+-  TkeventVptr  = (TkeventVtab *) SvIV(perl_get_sv("Tk::TkeventVtab",GV_ADDWARN|GV_ADD));
++  TkeventVptr  = INT2PTR(TkeventVtab *, SvIV(perl_get_sv("Tk::TkeventVtab",GV_ADDWARN|GV_ADD)));
+  }
+gdiff -up '/usr/local/src/Tk800.024/InputO/InputO.xs' '/usr/local/src/work/Tk800/InputO/InputO.xs'
+Index: ./InputO/InputO.xs
+--- ./InputO/InputO.xs	Tue Jul 27 20:20:06 1999
++++ ./InputO/InputO.xs	Tue Jun 17 01:25:46 2003
+@@ -38,6 +38,6 @@ CODE:
+ BOOT:
+  {
+   IMPORT_VTABLES;
+-  TixVptr     =     (TixVtab *) SvIV(perl_get_sv("Tk::TixVtab",5));      
+-  TixintVptr  =  (TixintVtab *) SvIV(perl_get_sv("Tk::TixintVtab",5));   
++  TixVptr     =     INT2PTR(TixVtab *, SvIV(perl_get_sv("Tk::TixVtab",5)));
++  TixintVptr  =  INT2PTR(TixintVtab *, SvIV(perl_get_sv("Tk::TixintVtab",5)));
+  }
 gdiff -up '/usr/local/src/Tk800.024/Listbox/Listbox.pm' '/usr/local/src/work/Tk800/Listbox/Listbox.pm'
 Index: ./Listbox/Listbox.pm
 Prereq:  1.7 
@@ -440,6 +564,34 @@ Index: ./Makefile.PL
  }
  
  
+gdiff -up '/usr/local/src/Tk800.024/Mwm/Mwm.xs' '/usr/local/src/work/Tk800/Mwm/Mwm.xs'
+Index: ./Mwm/Mwm.xs
+--- ./Mwm/Mwm.xs	Tue Jul 27 20:20:06 1999
++++ ./Mwm/Mwm.xs	Tue Jun 17 01:26:14 2003
+@@ -34,8 +34,8 @@ PROTOTYPES: DISABLE
+ BOOT:
+  {
+   IMPORT_VTABLES;   
+-  TixVptr     =     (TixVtab *) SvIV(perl_get_sv("Tk::TixVtab",5));    
+-  TixintVptr  =  (TixintVtab *) SvIV(perl_get_sv("Tk::TixintVtab",5)); 
++  TixVptr     =     INT2PTR(TixVtab *, SvIV(perl_get_sv("Tk::TixVtab",5)));    
++  TixintVptr  =  INT2PTR(TixintVtab *, SvIV(perl_get_sv("Tk::TixintVtab",5))); 
+   /* Initialize the display item types */
+ #if !defined(__WIN32__) && !defined(__PM__)
+   Lang_TkSubCommand("mwm",Tix_MwmCmd);
+gdiff -up '/usr/local/src/Tk800.024/NBFrame/NBFrame.xs' '/usr/local/src/work/Tk800/NBFrame/NBFrame.xs'
+Index: ./NBFrame/NBFrame.xs
+--- ./NBFrame/NBFrame.xs	Tue Jul 27 20:20:06 1999
++++ ./NBFrame/NBFrame.xs	Tue Jun 17 01:26:57 2003
+@@ -39,6 +39,6 @@ CODE:
+ BOOT:
+  {
+   IMPORT_VTABLES;
+-  TixVptr     =     (TixVtab *) SvIV(perl_get_sv("Tk::TixVtab",5));      
+-  TixintVptr  =  (TixintVtab *) SvIV(perl_get_sv("Tk::TixintVtab",5));   
++  TixVptr     =     INT2PTR(TixVtab *, SvIV(perl_get_sv("Tk::TixVtab",5)));
++  TixintVptr  =  INT2PTR(TixintVtab *, SvIV(perl_get_sv("Tk::TixintVtab",5)));
+  }
 gdiff -up '/usr/local/src/Tk800.024/README.cygwin' '/usr/local/src/work/Tk800/README.cygwin'
 Index: ./README.cygwin
 --- ./README.cygwin	Fri Sep  8 11:27:27 2000
@@ -605,6 +757,19 @@ Index: ./Scrollbar/Scrollbar.pm
  }
  
  # tkScrlByUnits --
+gdiff -up '/usr/local/src/Tk800.024/TList/TList.xs' '/usr/local/src/work/Tk800/TList/TList.xs'
+Index: ./TList/TList.xs
+--- ./TList/TList.xs	Tue Jul 27 20:20:07 1999
++++ ./TList/TList.xs	Tue Jun 17 01:27:19 2003
+@@ -38,6 +38,6 @@ CODE:
+ BOOT:
+  {
+   IMPORT_VTABLES;
+-  TixVptr     =     (TixVtab *) SvIV(perl_get_sv("Tk::TixVtab",5));    
+-  TixintVptr  =  (TixintVtab *) SvIV(perl_get_sv("Tk::TixintVtab",5)); 
++  TixVptr     =     INT2PTR(TixVtab *, SvIV(perl_get_sv("Tk::TixVtab",5)));    
++  TixintVptr  =  INT2PTR(TixintVtab *, SvIV(perl_get_sv("Tk::TixintVtab",5))); 
+  }
 gdiff -up '/usr/local/src/Tk800.024/Text/Text.pm' '/usr/local/src/work/Tk800/Text/Text.pm'
 Index: ./Text/Text.pm
 Prereq:  1.18 
@@ -958,6 +1123,32 @@ Index: ./TextList/textlist_demo
 +$lb2->configure(-width=>20);
  
  MainLoop;
+gdiff -up '/usr/local/src/Tk800.024/TixPixmap/Pixmap.xs' '/usr/local/src/work/Tk800/TixPixmap/Pixmap.xs'
+Index: ./TixPixmap/Pixmap.xs
+--- ./TixPixmap/Pixmap.xs	Tue Jul 27 20:20:07 1999
++++ ./TixPixmap/Pixmap.xs	Tue Jun 17 08:27:49 2003
+@@ -39,7 +39,7 @@ TkWindow *winPtr;
+    Tcl_Interp *Et_Interp = mainInfo->interp;
+    if (Et_Interp)
+     {
+-#ifdef WIN32
++#if defined(WIN32) && !defined(__GNUC__)
+ #pragma warning(disable: 4305)
+ #endif
+ #define UNSIGNED_CHAR unsigned char
+@@ -61,9 +61,9 @@ TkWindow *	win
+ BOOT:
+  {
+   IMPORT_VTABLES;
+-  TixVptr     =     (TixVtab *) SvIV(perl_get_sv("Tk::TixVtab",5));    
+-  TixintVptr  =  (TixintVtab *) SvIV(perl_get_sv("Tk::TixintVtab",5));  
+-  TiximgxpmVptr  =  (TiximgxpmVtab *) SvIV(perl_get_sv("Tk::TiximgxpmVtab",5));  
++  TixVptr     =     INT2PTR(TixVtab *, SvIV(perl_get_sv("Tk::TixVtab",5)));    
++  TixintVptr  =  INT2PTR(TixintVtab *, SvIV(perl_get_sv("Tk::TixintVtab",5)));
++  TiximgxpmVptr  =  INT2PTR(TiximgxpmVtab *, SvIV(perl_get_sv("Tk::TiximgxpmVtab",5)));
+ 
+   Tk_CreateImageType(&tixPixmapImageType);
+  }
 gdiff -up '/usr/local/src/Tk800.024/Tixish/Balloon.pm' '/usr/local/src/work/Tk800/Tixish/Balloon.pm'
 Index: ./Tixish/Balloon.pm
 --- ./Tixish/Balloon.pm	Mon Jan 17 20:31:18 2000
@@ -1984,13 +2175,13 @@ gdiff -up '/usr/local/src/Tk800.024/Tk.pm' '/usr/local/src/work/Tk800/Tk.pm'
 Index: ./Tk.pm
 Prereq:  1.6 
 --- ./Tk.pm	Tue Mar  5 14:55:48 2002
-+++ ./Tk.pm	Sat May  3 11:08:53 2003
++++ ./Tk.pm	Sat Jun  7 21:18:44 2003
 @@ -53,7 +53,7 @@ use Carp;
  # is created, $VERSION is checked by bootstrap
  $Tk::version     = '8.0';
  $Tk::patchLevel  = '8.0';
 -$Tk::VERSION     = '800.024';
-+$Tk::VERSION     = '800.024011'; # PATCHED!
++$Tk::VERSION     = '800.024012'; # PATCHED!
  $Tk::XS_VERSION  = $Tk::VERSION;
  $Tk::strictMotif = 0;
  
@@ -2230,7 +2421,7 @@ Index: ./Tk/ErrorDialog.pm
 gdiff -up '/usr/local/src/Tk800.024/Tk/FBox.pm' '/usr/local/src/work/Tk800/Tk/FBox.pm'
 Index: ./Tk/FBox.pm
 --- ./Tk/FBox.pm	Fri Feb 22 14:47:26 2002
-+++ ./Tk/FBox.pm	Fri May  9 08:09:33 2003
++++ ./Tk/FBox.pm	Sat Jun 21 22:33:21 2003
 @@ -45,10 +45,6 @@ use base qw(Tk::Toplevel);
  
  Construct Tk::Widget 'FBox';
@@ -2279,7 +2470,15 @@ Index: ./Tk/FBox.pm
      $dirMenu->configure(-takefocus => 1, -highlightthickness => 2);
      $upBtn->pack(-side => 'right', -padx => 4, -fill => 'both');
      $lab->pack(-side => 'left', -padx => 4, -fill => 'both');
-@@ -198,21 +200,23 @@ EOF
+@@ -128,6 +130,7 @@ EOF
+        -relief => $f2_lab->cget(-relief),
+        -padx => $f2_lab->cget(-padx),
+        -pady => $f2_lab->cget(-pady),
++       -takefocus => 0,
+       );
+     $typeMenuLab->bindtags([$typeMenuLab, 'Label',
+ 			    $typeMenuLab->toplevel, 'all']);
+@@ -198,21 +201,23 @@ EOF
      $w->SetPath(_cwd());
  
      $w->ConfigSpecs(-defaultextension => ['PASSIVE', undef, undef, undef],
@@ -2313,7 +2512,7 @@ Index: ./Tk/FBox.pm
  sub Show {
      my $w = shift;
  
-@@ -225,8 +229,9 @@ sub Show {
+@@ -225,8 +230,9 @@ sub Show {
      {
  	my $initialdir = $w->cget(-initialdir);
  	if (defined $initialdir) {
@@ -2325,7 +2524,7 @@ Index: ./Tk/FBox.pm
  	    } else {
  		$w->Error("\"$initialdir\" is not a valid directory");
  	    }
-@@ -253,7 +258,7 @@ sub Show {
+@@ -253,7 +259,7 @@ sub Show {
  	$typeMenuBtn->configure(-state => 'normal');
  	$typeMenuLab->configure(-state => 'normal');
      } else {
@@ -2334,7 +2533,7 @@ Index: ./Tk/FBox.pm
  	$typeMenuBtn->configure(-state => 'disabled',
  				-takefocus => 0);
  	$typeMenuLab->configure(-state => 'disabled');
-@@ -286,17 +291,19 @@ sub Show {
+@@ -286,17 +292,19 @@ sub Show {
      my $ent = $w->{'ent'};
      $ent->focus;
      $ent->delete(0, 'end');
@@ -2359,7 +2558,7 @@ Index: ./Tk/FBox.pm
      eval {
  	$oldFocus->focus if $oldFocus;
      };
-@@ -304,14 +311,14 @@ sub Show {
+@@ -304,14 +312,14 @@ sub Show {
  	$w->grabRelease;
  	$w->withdraw;
      }
@@ -2376,7 +2575,7 @@ Index: ./Tk/FBox.pm
  }
  
  # tkFDialog_UpdateWhenIdle --
-@@ -347,13 +354,13 @@ sub Update {
+@@ -347,13 +355,13 @@ sub Update {
      } else {
  	delete $w->{'updateId'};
      }
@@ -2395,7 +2594,7 @@ Index: ./Tk/FBox.pm
      my $appPWD = _cwd();
      if (!ext_chdir($w->{'selectPath'})) {
  	# We cannot change directory to $data(selectPath). $data(selectPath)
-@@ -381,19 +388,36 @@ sub Update {
+@@ -381,19 +389,36 @@ sub Update {
      $icons->DeleteAll;
  
      # Make the dir & file list
@@ -2443,7 +2642,7 @@ Index: ./Tk/FBox.pm
      }
  
      $icons->Arrange;
-@@ -709,7 +733,8 @@ sub OkCmd {
+@@ -709,7 +734,8 @@ sub OkCmd {
  # Gets called when user presses the "Cancel" button
  #
  sub CancelCmd {
@@ -2453,7 +2652,7 @@ Index: ./Tk/FBox.pm
  }
  
  # Gets called when user browses the IconList widget (dragging mouse, arrow
-@@ -752,8 +777,15 @@ sub ListInvoke {
+@@ -752,8 +778,15 @@ sub ListInvoke {
  	    $w->SetPath($file);
  	}
      } else {
@@ -2471,7 +2670,7 @@ Index: ./Tk/FBox.pm
      }
  }
  
-@@ -780,7 +812,7 @@ sub Done {
+@@ -780,7 +813,7 @@ sub Done {
  	    return unless (lc($reply) eq 'yes');
  	}
      }
@@ -2480,7 +2679,7 @@ Index: ./Tk/FBox.pm
  }
  
  sub FDialog {
-@@ -885,6 +917,18 @@ sub _untaint {
+@@ -885,6 +918,18 @@ sub _untaint {
      my $s = shift;
      $s =~ /^(.*)$/;
      $1;
@@ -2585,7 +2784,7 @@ Index: ./Tk/FileSelect.pm
 gdiff -up '/usr/local/src/Tk800.024/Tk/IconList.pm' '/usr/local/src/work/Tk800/Tk/IconList.pm'
 Index: ./Tk/IconList.pm
 --- ./Tk/IconList.pm	Sat Oct  2 18:44:27 1999
-+++ ./Tk/IconList.pm	Mon Apr 21 17:53:09 2003
++++ ./Tk/IconList.pm	Sat Jun 21 22:26:42 2003
 @@ -36,6 +36,7 @@
  
  package Tk::IconList;
@@ -2675,7 +2874,7 @@ Index: ./Tk/IconList.pm
 +    $canvas->Tk::bind('<2>',['scan','mark',Ev('x'),Ev('y')]);
 +    $canvas->Tk::bind('<B2-Motion>',['scan','dragto',Ev('x'),Ev('y')]);
 +    # Remove the standard Canvas bindings
-+    $canvas->bindtags([$canvas]);
++    $canvas->bindtags([$canvas, $canvas->toplevel, "all"]);
 +    # ... and define some again
 +    $canvas->Tk::bind('<Home>', ['xview','moveto',0]);
 +    $canvas->Tk::bind('<End>',  ['xview','moveto',1]);
@@ -2721,7 +2920,7 @@ Index: ./Tk/IconList.pm
 gdiff -up '/usr/local/src/Tk800.024/Tk/MMutil.pm' '/usr/local/src/work/Tk800/Tk/MMutil.pm'
 Index: ./Tk/MMutil.pm
 --- ./Tk/MMutil.pm	Tue Mar  5 15:27:40 2002
-+++ ./Tk/MMutil.pm	Mon Apr 21 18:05:21 2003
++++ ./Tk/MMutil.pm	Sat Jun 28 17:49:39 2003
 @@ -272,6 +272,22 @@ sub const_config
     $self->{'LDFLAGS'} =~ s/-(debug|pdb:\w+)\s+//g;
     $self->{'LDDLFLAGS'} =~ s/-(debug|pdb:\w+)\s+//g;
@@ -2996,21 +3195,18 @@ Index: ./Tk/TextUndo.pm
 gdiff -up '/usr/local/src/Tk800.024/Tk/Trace.pm' '/usr/local/src/work/Tk800/Tk/Trace.pm'
 Index: ./Tk/Trace.pm
 --- ./Tk/Trace.pm	Mon Sep 11 21:44:39 2000
-+++ ./Tk/Trace.pm	Fri May 30 23:16:52 2003
-@@ -3,9 +3,9 @@ package Tk::Trace;
++++ ./Tk/Trace.pm	Sun Jun 15 22:13:06 2003
+@@ -3,9 +3,6 @@ package Tk::Trace;
  use vars qw($VERSION);
  $VERSION = '3.002'; # $Id: //depot/Tk8/Tk/Trace.pm#2 $
  
 -use Exporter;
 -use base qw/Exporter/;
 -@EXPORT = qw/traceVariable traceVdelete traceVinfo/;
-+#use Exporter;
-+#use base qw/Exporter/;
-+#@EXPORT = qw/traceVariable traceVdelete traceVinfo/;
  use Tie::Watch;
  use strict;
  
-@@ -84,7 +84,7 @@ sub destroy {
+@@ -84,7 +81,7 @@ sub destroy {
      $self->Destroy(@_);                      # destroy variable
  }
  
@@ -3019,7 +3215,7 @@ Index: ./Tk/Trace.pm
      my($parent, $vref, $op, $callback) = @_;
      die "Illegal parent." unless ref $parent;
      die "Illegal variable." unless ref $vref;
-@@ -120,7 +120,7 @@ sub traceVariable {
+@@ -120,7 +117,7 @@ sub traceVariable {
  
  } # end traceVariable
  
@@ -3028,7 +3224,7 @@ Index: ./Tk/Trace.pm
      my($parent, $vref, $op_not_honored, $callabck_not_honored) = @_;
      if (defined $trace{$vref}) {
          $trace{$vref}->Unwatch;
-@@ -128,7 +128,7 @@ sub traceVdelete {
+@@ -128,7 +125,7 @@ sub traceVdelete {
      }
  }
  
@@ -3037,7 +3233,7 @@ Index: ./Tk/Trace.pm
      my($parent, $vref) = @_;
      return (defined $trace{$vref}) ? $trace{$vref}->Info : undef;
  }
-@@ -226,6 +226,7 @@ Stop tracing the variable.
+@@ -226,6 +223,7 @@ Stop tracing the variable.
  =head1 EXAMPLE
  
   use Tk;
@@ -3045,7 +3241,7 @@ Index: ./Tk/Trace.pm
  
   # Trace a Scale's variable and move a meter in unison.
  
-@@ -266,7 +267,7 @@ Stop tracing the variable.
+@@ -266,7 +264,7 @@ Stop tracing the variable.
  
  =head1 COPYRIGHT
  
@@ -3225,16 +3421,38 @@ Index: ./Tk/arrowdownwin.xbm
 +static char arrowdownwin2_bits[] = {
 + 0x00,0xfe,0x00,0xfe,0x00,0xfe,0x00,0xfe,0x00,0xfe,0x7c,0xfe,0x38,0xfe,0x10,
 + 0xfe,0x00,0xfe,0x00,0xfe,0x00,0xfe,0x00,0xfe,0x00,0xfe};
+gdiff -up '/usr/local/src/Tk800.024/Tk/typemap' '/usr/local/src/work/Tk800/Tk/typemap'
+Index: ./Tk/typemap
+--- ./Tk/typemap	Tue Jul 27 20:20:10 1999
++++ ./Tk/typemap	Tue Jun 17 01:41:39 2003
+@@ -63,7 +63,7 @@ T_TK_UID
+ 
+ T_IVOBJ
+ 	if (sv_isa($arg, \"${ntype}\")) {
+-	    $var = ($type)(SvIV(SvRV($arg)));
++	    $var = INT2PTR($type, SvIV(SvRV($arg)));
+ 	}
+ 	else {
+ 	    $var = ($type) NULL;
+@@ -80,7 +80,7 @@ T_NIO
+ 
+ OUTPUT
+ T_IVOBJ
+-	sv_setref_iv($arg, \"${ntype}\", (IV) $var);
++	sv_setref_iv($arg, \"${ntype}\", PTR2IV($var));
+ 
+ T_TK_UID
+ 	sv_setpv($arg,$var);
 gdiff -up '/usr/local/src/Tk800.024/chnGlue.c' '/usr/local/src/work/Tk800/chnGlue.c'
 Index: ./chnGlue.c
 --- ./chnGlue.c	Fri Sep  8 11:27:28 2000
-+++ ./chnGlue.c	Fri May  2 00:14:17 2003
++++ ./chnGlue.c	Tue Jun 17 01:20:29 2003
 @@ -93,8 +93,12 @@ Tcl_SetChannelOption(Tcl_Interp *interp,
    {
     if (strcmp(newValue,"binary") == 0)
      {
 +#ifdef USE_PERLIO
-+     PerlIO_binmode(f, '<', O_BINARY, Nullch);
++     PerlIO_binmode(aTHX_ f, '<', O_BINARY, Nullch);
 +#else
  #if defined(WIN32) || defined(__EMX__)  || defined(__CYGWIN__)
       setmode(PerlIO_fileno(f), O_BINARY);
@@ -4076,6 +4294,29 @@ Prereq:  1.4
  	}
  	if ((keysym == XK_Meta_L) || (keysym == XK_Meta_R)) {
  	    dispPtr->metaModMask |= ShiftMask << (i/modMapPtr->max_keypermod);
+gdiff -up '/usr/local/src/Tk800.024/pTk/mTk/generic/tkBitmap.c' '/usr/local/src/work/Tk800/pTk/mTk/generic/tkBitmap.c'
+Index: ./pTk/mTk/generic/tkBitmap.c
+Prereq:  1.6 
+--- ./pTk/mTk/generic/tkBitmap.c	Sat Mar 25 14:22:55 2000
++++ ./pTk/mTk/generic/tkBitmap.c	Thu Jun 19 05:11:37 2003
+@@ -26,7 +26,7 @@
+  * temporarily turn off that warning message.
+  */
+ 
+-#if defined(__WIN32__) || defined(_WIN32)
++#if (defined(__WIN32__) || defined(_WIN32)) && !defined(__GNUC__)
+ #pragma warning (disable : 4305)
+ #endif
+ 
+@@ -43,7 +43,7 @@
+ #include "warning.bmp"
+ #include "tk.bmp"
+ 
+-#if defined(__WIN32__) || defined(_WIN32)
++#if (defined(__WIN32__) || defined(_WIN32)) && !defined(__GNUC__)
+ #pragma warning (default : 4305)
+ #endif
+ 
 gdiff -up '/usr/local/src/Tk800.024/pTk/mTk/generic/tkImgPhoto.c' '/usr/local/src/work/Tk800/pTk/mTk/generic/tkImgPhoto.c'
 Index: ./pTk/mTk/generic/tkImgPhoto.c
 Prereq:  1.4 
@@ -6024,18 +6265,21 @@ Index: ./t/browseentry2.t
 gdiff -up /dev/null '/usr/local/src/work/Tk800/t/cursor.t'
 Index: ./t/cursor.t
 --- ./t/cursor.t	Thu Jan  1 01:00:00 1970
-+++ ./t/cursor.t	Mon Apr 21 20:37:25 2003
-@@ -0,0 +1,30 @@
++++ ./t/cursor.t	Sun Jun 15 22:08:36 2003
+@@ -0,0 +1,34 @@
 +# -*- perl -*-
 +BEGIN { $|=1; $^W=1; }
 +use strict;
 +use Test;
 +use Tk;
 +
-+BEGIN
-+  {
-+   plan test => 2, todo => [($Tk::platform eq 'MSWin32' ? () : (2))];
-+  };
++BEGIN {
++    if ($Tk::platform eq 'MSWin32') {
++	plan test => 1;
++    } else {
++	plan test => 2, todo => [1];
++    }
++}
 +
 +my $mw;
 +$mw = Tk::MainWindow->new();
@@ -6045,14 +6289,15 @@ Index: ./t/cursor.t
 +    my $curfile = "demos/demos/images/cursor.cur";
 +    $mw->configure(-cursor => $curfile);
 +    $mw->update;
-+    ok(1);
 +    ok($mw->cget(-cursor), $curfile);
 +} else {
 +    $mw->configure(-cursor => ['@demos/demos/images/cursor.xbm','black']);
 +    $mw->update;
-+    ok(1);
 +    $mw->after(200);
 +    ok(ref $mw->cget(-cursor) eq 'ARRAY');
++    my $tclcurspec = '@demos/demos/images/cursor.xbm black';
++    $mw->configure(-cursor => $tclcurspec);
++    ok($mw->cget(-cursor), $tclcurspec);
 +}
 +
 +__END__
@@ -9608,7 +9853,38 @@ Index: ./t/listbox.t
 gdiff -up '/usr/local/src/Tk800.024/tkGlue.c' '/usr/local/src/work/Tk800/tkGlue.c'
 Index: ./tkGlue.c
 --- ./tkGlue.c	Tue Mar  5 14:55:48 2002
-+++ ./tkGlue.c	Fri May 30 23:24:38 2003
++++ ./tkGlue.c	Tue Jun 17 01:55:24 2003
+@@ -584,8 +584,8 @@ ClientData clientData;
+ {
+  HV *hv = InterpHv(interp,1);
+  AV *av = FindAv(interp, "Tcl_CallWhenDeleted", 1, "_When_Deleted_");
+- av_push(av, newSViv((IV) proc));
+- av_push(av, newSViv((IV) clientData));
++ av_push(av, newSViv(PTR2IV(proc)));
++ av_push(av, newSViv(PTR2IV(clientData)));
+ }
+ 
+ XS(XS_Tk__Interp_DESTROY)
+@@ -603,8 +603,8 @@ XS(XS_Tk__Interp_DESTROY)
+     {
+      SV *cd = av_pop(av);
+      SV *pr = av_pop(av);
+-     Tcl_InterpDeleteProc *proc = (Tcl_InterpDeleteProc *) SvIV(pr);
+-     ClientData clientData = (ClientData) SvIV(cd);
++     Tcl_InterpDeleteProc *proc = INT2PTR(Tcl_InterpDeleteProc *, SvIV(pr));
++     ClientData clientData = INT2PTR(ClientData, SvIV(cd));
+      (*proc) (clientData, interp);
+      SvREFCNT_dec(cd);
+      SvREFCNT_dec(pr);
+@@ -713,7 +713,7 @@ Lang_NewMainWindow(interp,tkwin)
+ Tcl_Interp *interp;
+ Tk_Window tkwin;
+ {
+- tilde_magic((SV *) InterpHv(interp,1),newSViv((IV) tkwin));
++ tilde_magic((SV *) InterpHv(interp,1),newSViv(PTR2IV(tkwin)));
+ }
+ 
+ #define mSVPV(sv,na) (SvOK(sv) ? SvPV(sv,na) : "undef")
 @@ -2261,7 +2261,20 @@ SV **args;
         PL_tainted = old_taint;
         DecInterp(interp, "Call_Tk");
@@ -9630,6 +9906,24 @@ Index: ./tkGlue.c
        }
      }
     else
+@@ -2304,7 +2317,7 @@ InitVtabs(void)
+    install_vtab("TkwinVtab",TkwinVGet(),sizeof(TkwinVtab));
+    install_vtab("TkwinintVtab",TkwinintVGet(),sizeof(TkwinintVtab));
+ #endif
+-   TkeventVptr  = (TkeventVtab *) SvIV(perl_get_sv("Tk::TkeventVtab",GV_ADDWARN|GV_ADD));   \
++   TkeventVptr  = INT2PTR(TkeventVtab *, SvIV(perl_get_sv("Tk::TkeventVtab",GV_ADDWARN|GV_ADD)));   \
+    Boot_Tix();
+   }
+  initialized++;
+@@ -2548,7 +2561,7 @@ Tcl_Interp *interp;
+    MAGIC *mg = mg_find((SV *) hv, '~');
+    if (mg)
+     {
+-     return (Tk_Window) SvIV(mg->mg_obj);
++     return INT2PTR(Tk_Window, SvIV(mg->mg_obj));
+     }
+   }
+  return NULL;
 @@ -3054,6 +3067,7 @@ Tk_Window tkwin;
         if (info->interp != interp)
          Tcl_Panic("%s->interp=%p expected %p", cmdName, info->interp, interp);
@@ -9638,6 +9932,24 @@ Index: ./tkGlue.c
         sv_unmagic((SV *) hash,'~');
        }
      }
+@@ -3426,7 +3440,7 @@ int flags;
+ static
+ DECL_MG_UFUNC(Perl_Value, ix, sv)
+ {
+- Tk_TraceInfo *p = (Tk_TraceInfo *) ix;
++ Tk_TraceInfo *p = INT2PTR(Tk_TraceInfo *, ix);
+  char *result;
+ 
+  /* We are a "magic" set processor, whether we like it or not
+@@ -3457,7 +3471,7 @@ DECL_MG_UFUNC(Perl_Value, ix, sv)
+ 
+ static DECL_MG_UFUNC(Perl_Trace, ix, sv)
+ {
+- Tk_TraceInfo *p = (Tk_TraceInfo *) ix;
++ Tk_TraceInfo *p = INT2PTR(Tk_TraceInfo *, ix);
+  char *result;
+ 
+  /* We are a "magic" set processor, whether we like it or not
 @@ -3474,6 +3488,10 @@ static DECL_MG_UFUNC(Perl_Trace, ix, sv)
      some magic list or be careful how we insert ourselves in the list?
  
@@ -9657,6 +9969,69 @@ Index: ./tkGlue.c
  
   ENTER;
   SvREFCNT_inc(sv);
+@@ -3549,7 +3568,7 @@ ClientData clientData;
+  Newz(666, ufp, 1, struct ufuncs);
+  ufp->uf_val = Perl_Value;
+  ufp->uf_set = Perl_Trace;
+- ufp->uf_index = (IV) p;
++ ufp->uf_index = PTR2IV(p);
+ 
+  mg = SvMAGIC(sv);
+  mg->mg_ptr = (char *) ufp;
+@@ -3601,7 +3620,7 @@ LangLibraryDir()
+ static
+ DECL_MG_UFUNC(LinkIntSet,ix,sv)
+ {
+- int *p = (int *) ix;
++ int *p = INT2PTR(int *, ix);
+  (*p) = SvIV(sv);
+  return 0;
+ }
+@@ -3609,7 +3628,7 @@ DECL_MG_UFUNC(LinkIntSet,ix,sv)
+ static
+ DECL_MG_UFUNC(LinkDoubleSet,ix,sv)
+ {
+- double *p = (double *) ix;
++ double *p = INT2PTR(double *, ix);
+  (*p) = SvNV(sv);
+  return 0;
+ }
+@@ -3624,7 +3643,7 @@ DECL_MG_UFUNC(LinkCannotSet,ix,sv)
+ static
+ DECL_MG_UFUNC(LinkIntVal,ix,sv)
+ {
+- int *p = (int *) ix;
++ int *p = INT2PTR(int *, ix);
+  sv_setiv(sv,*p);
+  return 0;
+ }
+@@ -3632,7 +3651,7 @@ DECL_MG_UFUNC(LinkIntVal,ix,sv)
+ static
+ DECL_MG_UFUNC(LinkDoubleVal,ix,sv)
+ {
+- double *p = (double *) ix;
++ double *p = INT2PTR(double *, ix);
+  sv_setnv(sv,*p);
+  return 0;
+ }
+@@ -3648,7 +3667,7 @@ int type;
+  if (sv)
+   {
+    struct ufuncs uf;
+-   uf.uf_index = (IV) addr;
++   uf.uf_index = PTR2IV(addr);
+    switch(type & ~TCL_LINK_READ_ONLY)
+     {
+      case TCL_LINK_INT:
+@@ -3721,7 +3740,7 @@ ClientData clientData;
+          ((struct ufuncs *) (mg->mg_ptr))->uf_set == Perl_Trace)
+       {
+        struct ufuncs *uf = (struct ufuncs *) (mg->mg_ptr);
+-       Tk_TraceInfo *p = (Tk_TraceInfo *) (uf->uf_index);
++       Tk_TraceInfo *p = INT2PTR(Tk_TraceInfo *, uf->uf_index);
+        if (p && p->proc == tkproc && p->interp == interp &&
+            p->clientData == clientData)
+         {
 @@ -3878,6 +3897,10 @@ int type;
  #else
     CopSTASH(PL_curcop) = NULL;
@@ -9681,6 +10056,15 @@ Index: ./tkGlue.c
  #endif
  }
  
+@@ -5051,7 +5078,7 @@ size_t size;
+    typedef int (*fptr)_((void));
+    fptr *q = table;
+    unsigned i;
+-   sv_setiv(FindTkVarName(name,GV_ADD|GV_ADDMULTI),(IV) table);
++   sv_setiv(FindTkVarName(name,GV_ADD|GV_ADDMULTI),PTR2IV(table));
+    if (size % sizeof(fptr))
+     {
+      warn("%s is strange size %d",name,size);
 @@ -5153,7 +5180,9 @@ Tk_GetUid(key)
      HE *he;
      if (!uidHV)
@@ -9692,31 +10076,74 @@ Index: ./tkGlue.c
      SvREFCNT_dec(svkey);
      return (Tk_Uid) HePV(he,klen);
  }
+gdiff -up '/usr/local/src/Tk800.024/tkGlue.h' '/usr/local/src/work/Tk800/tkGlue.h'
+Index: ./tkGlue.h
+--- ./tkGlue.h	Fri Apr 21 10:13:10 2000
++++ ./tkGlue.h	Tue Jun 17 01:45:01 2003
+@@ -53,15 +53,22 @@ do {                                    
+ #define IMPORT_WIN32_VTABLES
+ #endif
+ 
++#ifndef INT2PTR
++#define INT2PTR(any,d) (any)(d)
++#endif
++#ifndef PTR2IV
++#define PTR2IV(p)	INT2PTR(IV,p)
++#endif
++
+ #define IMPORT_VTABLES                                                         \
+ do {                                                                           \
+-  TkoptionVptr = (TkoptionVtab *) SvIV(perl_get_sv("Tk::TkoptionVtab",GV_ADDWARN|GV_ADD)); \
+-  LangVptr     = (LangVtab *) SvIV(perl_get_sv("Tk::LangVtab",GV_ADDWARN|GV_ADD));         \
+-  TkeventVptr  = (TkeventVtab *) SvIV(perl_get_sv("Tk::TkeventVtab",GV_ADDWARN|GV_ADD));   \
+-  TkVptr       = (TkVtab *) SvIV(perl_get_sv("Tk::TkVtab",GV_ADDWARN|GV_ADD));             \
+-  TkintVptr    = (TkintVtab *) SvIV(perl_get_sv("Tk::TkintVtab",GV_ADDWARN|GV_ADD));       \
+-  TkglueVptr   = (TkglueVtab *) SvIV(perl_get_sv("Tk::TkglueVtab",GV_ADDWARN|GV_ADD));     \
+-  XlibVptr     = (XlibVtab *) SvIV(perl_get_sv("Tk::XlibVtab",GV_ADDWARN|GV_ADD));         \
++  TkoptionVptr = INT2PTR(TkoptionVtab *, SvIV(perl_get_sv("Tk::TkoptionVtab",GV_ADDWARN|GV_ADD))); \
++  LangVptr     = INT2PTR(LangVtab *, SvIV(perl_get_sv("Tk::LangVtab",GV_ADDWARN|GV_ADD)));         \
++  TkeventVptr  = INT2PTR(TkeventVtab *, SvIV(perl_get_sv("Tk::TkeventVtab",GV_ADDWARN|GV_ADD)));   \
++  TkVptr       = INT2PTR(TkVtab *, SvIV(perl_get_sv("Tk::TkVtab",GV_ADDWARN|GV_ADD)));             \
++  TkintVptr    = INT2PTR(TkintVtab *, SvIV(perl_get_sv("Tk::TkintVtab",GV_ADDWARN|GV_ADD)));       \
++  TkglueVptr   = INT2PTR(TkglueVtab *, SvIV(perl_get_sv("Tk::TkglueVtab",GV_ADDWARN|GV_ADD)));     \
++  XlibVptr     = INT2PTR(XlibVtab *, SvIV(perl_get_sv("Tk::XlibVtab",GV_ADDWARN|GV_ADD)));         \
+  } while (0)
+ 
+ #define VTABLE_INIT() IMPORT_VTABLES
 #### End of Patch data ####
 
 #### ApplyPatch data follows ####
 # Data version        : 1.0
-# Date generated      : Sat Jun  7 21:02:31 2003
+# Date generated      : Sat Jun 28 17:50:47 2003
 # Generated by        : makepatch 2.00_05
 # Recurse directories : Yes
 # v 'pTk/patchlevel.h' 934 1050940300 33200
-# c 'BUGS' 0 1052462182 0100660
+# c 'BUGS' 0 1056228004 0100660
 # p 'Canvas/canvtxt' 6143 1050940404 0100771
+# p 'Compound/Compound.xs' 853 1055805846 0100660
 # p 'DragDrop/DragDrop.pm' 7261 1051278857 0100660
 # p 'DragDrop/Win32Site/Win32Site.xs' 1357 1050940405 0100660
 # p 'Entry/Entry.pm' 13001 1051278857 0100660
-# p 'Event/Event.pm' 402 1051956030 0100664
-# p 'Event/Event.xs' 26309 1051280524 0100660
+# p 'Event/Event.pm' 402 1055014106 0100664
+# p 'Event/Event.xs' 26309 1055807118 0100660
 # p 'Event/pTkCallback.c' 5960 1050940404 0100660
+# p 'Event/typemap' 284 1055807934 0100660
 # p 'HList/HList.pm' 12866 1051278857 0100660
+# p 'HList/HList.xs' 893 1055806204 0100660
+# p 'IO/IO.xs' 6104 1055805912 0100660
+# p 'InputO/InputO.xs' 914 1055805946 0100660
 # p 'Listbox/Listbox.pm' 20944 1050940389 0100660
 # p 'MANIFEST' 33060 1052460547 0100660
 # p 'Makefile.PL' 4062 1051953759 0100660
+# p 'Mwm/Mwm.xs' 996 1055805974 0100660
+# p 'NBFrame/NBFrame.xs' 915 1055806017 0100660
 # p 'README.cygwin' 4984 1050942496 0100660
 # p 'Scrollbar/Scrollbar.pm' 9795 1050940389 0100660
+# p 'TList/TList.xs' 890 1055806039 0100660
 # p 'Text/Text.pm' 41797 1051050503 0100664
 # p 'TextList/TextList.pm' 26287 1051279972 0100660
 # p 'TextList/textlist_demo' 1146 1051279978 0100771
+# p 'TixPixmap/Pixmap.xs' 1397 1055831269 0100660
 # p 'Tixish/Balloon.pm' 10922 1052460572 0100660
 # p 'Tixish/BrowseEntry.pm' 8346 1050954605 0100660
 # p 'Tixish/DialogBox.pm' 3408 1051278858 0100660
@@ -9724,26 +10151,27 @@ Index: ./tkGlue.c
 # p 'Tixish/LabFrame.pm' 1669 1050940389 0100660
 # p 'Tixish/NoteBook.pm' 10355 1051798766 0100664
 # p 'Tixish/Tree.pm' 4465 1053632575 0100664
-# p 'Tk.pm' 14763 1051952933 0100664
+# p 'Tk.pm' 14763 1055013524 0100664
 # p 'Tk.xs' 13215 1050940404 0100660
 # p 'Tk/Adjuster.pm' 10977 1050940379 0100660
 # p 'Tk/After.pm' 1589 1051277181 0100660
 # p 'Tk/ColorEditor.pm' 22827 1051277940 0100660
 # p 'Tk/ErrorDialog.pm' 4833 1051277463 0100660
-# p 'Tk/FBox.pm' 25239 1052460573 0100660
+# p 'Tk/FBox.pm' 25239 1056227601 0100664
 # p 'Tk/FileSelect.pm' 14016 1051276306 0100660
-# p 'Tk/IconList.pm' 14377 1050940389 0100660
-# p 'Tk/MMutil.pm' 12003 1050941121 0100664
+# p 'Tk/IconList.pm' 14377 1056227202 0100664
+# p 'Tk/MMutil.pm' 12003 1056815379 0100660
 # p 'Tk/Menu.pm' 28719 1050940389 0100660
 # p 'Tk/Optionmenu.pm' 2600 1054329877 0100660
 # p 'Tk/Pane.pm' 13078 1050940389 0100660
 # p 'Tk/Table.pm' 10288 1055011908 0100664
 # p 'Tk/TextUndo.pm' 24547 1051277025 0100664
-# p 'Tk/Trace.pm' 8917 1054329412 0100664
+# p 'Tk/Trace.pm' 8917 1055707986 0100664
 # p 'Tk/Widget.pm' 30976 1051277346 0100660
 # p 'Tk/Wm.pm' 3548 1051908022 0100664
 # c 'Tk/arrowdownwin.xbm' 0 1050954645 0100440
-# p 'chnGlue.c' 2053 1051827257 0100660
+# p 'Tk/typemap' 1555 1055806899 0100660
+# p 'chnGlue.c' 2053 1055805629 0100660
 # p 'demos/demos/widget_lib/Plot.pm' 5586 1051279161 0100660
 # p 'demos/demos/widget_lib/WidgetDemo.pm' 2883 1051279196 0100660
 # p 'demos/demos/widget_lib/arrows.pl' 8336 1051279034 0100660
@@ -9763,6 +10191,7 @@ Index: ./tkGlue.c
 # p 'myConfig' 9292 1051047195 0100660
 # p 'pTk/Xlib.excwin' 604 1050941174 0100660
 # p 'pTk/mTk/generic/tkBind.c' 150150 1050940405 0100660
+# p 'pTk/mTk/generic/tkBitmap.c' 18714 1055992297 0100660
 # p 'pTk/mTk/generic/tkImgPhoto.c' 143579 1050940405 0100660
 # p 'pTk/mTk/generic/tkPlace.c' 31060 1050940405 0100660
 # p 'pTk/mTk/generic/tkTextIndex.c' 20996 1050940405 0100660
@@ -9795,13 +10224,14 @@ Index: ./tkGlue.c
 # c 't/browseentry-grabtest.t' 0 1050954620 0100551
 # c 't/browseentry-subclassing.t' 0 1050954620 0100551
 # c 't/browseentry2.t' 0 1050954620 0100551
-# c 't/cursor.t' 0 1050950245 0100775
+# c 't/cursor.t' 0 1055707716 0100775
 # c 't/entry.t' 0 1051280888 0100775
 # c 't/leak.t' 0 1050940428 0100660
 # c 't/listbox.t' 0 1050952698 0100775
-# p 'tkGlue.c' 104889 1054329878 0100660
+# p 'tkGlue.c' 104889 1055807724 0100660
+# p 'tkGlue.h' 3763 1055807101 0100660
 #### End of ApplyPatch data ####
 
-#### End of Patch kit [created: Sat Jun  7 21:02:31 2003] ####
-#### Patch checksum: 9754 302511 36649 ####
-#### Checksum: 9806 304088 38560 ####
+#### End of Patch kit [created: Sat Jun 28 17:50:47 2003] ####
+#### Patch checksum: 10184 318265 32487 ####
+#### Checksum: 10236 319843 34444 ####

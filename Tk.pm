@@ -1,7 +1,7 @@
 # -*- perl -*-
 
 #
-# $Id: Tk.pm,v 1.39 2003/06/07 19:06:41 eserte Exp $
+# $Id: Tk.pm,v 1.39 2003/06/07 19:06:41 eserte Exp eserte $
 # Author: Slaven Rezic
 #
 # Mail: slaven@rezic.de
@@ -11,7 +11,8 @@
 package Patch::SREZIC::Tk;
 use vars qw($VERSION);
 
-$VERSION = "800_024.011";
+# This should match the version numbers in Tk.pm and Event/Event.pm!
+$VERSION = "800_024.012";
 
 warn "This file does nothing --- please patch the \"real\" Tk distribution";
 
