@@ -101,6 +101,7 @@ PATCHES
 
     * Tk/FileSelect.pm
       - prevent unnecessary Unbusy in reread() (fix)
+      - directory: revert to previous directory in case of error
 
     * Tk/LabFrame.pm
       - changes by Rob Seegel

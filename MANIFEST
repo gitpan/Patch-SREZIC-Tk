@@ -41,6 +41,7 @@ t/hlist.t
 t/iconlist.t
 t/leak.t
 t/cmdline.t
+t/fileselect.t
 MANIFEST
 Makefile.PL
 README.patches

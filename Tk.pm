@@ -1,7 +1,7 @@
 # -*- perl -*-
 
 #
-# $Id: Tk.pm,v 1.35 2002/03/10 21:52:17 eserte Exp $
+# $Id: Tk.pm,v 1.36 2002/03/11 21:44:45 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 2001,2002 Slaven Rezic. All rights reserved.
@@ -15,7 +15,7 @@
 package Patch::SREZIC::Tk;
 use vars qw($VERSION $VERBOSE);
 
-$VERSION = "800_024.002";
+$VERSION = "800_024.003";
 $VERBOSE = 1 unless defined $VERBOSE;
 
 use Tk 800.024;
