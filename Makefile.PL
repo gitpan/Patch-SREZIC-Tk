@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: Makefile.PL,v 1.5 2002/03/02 20:19:48 eserte Exp $
+# $Id: Makefile.PL,v 1.6 2002/03/10 12:03:03 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 2001 Slaven Rezic. All rights reserved.
@@ -20,7 +20,7 @@ WriteMakefile
    'NAME'	   => 'Patch::SREZIC::Tk',
    'VERSION_FROM'  => 'Tk.pm',
    'PMLIBDIRS'     => ['Tk'],
-   'PREREQ_PM'     => { Tk => undef },
+   'PREREQ_PM'     => { Tk => 800.024 },
 
    'dist' => {'POSTOP'=>'-$(CHMOD) 644 $(DISTVNAME).tar$(SUFFIX)'},
 

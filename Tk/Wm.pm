@@ -1,7 +1,7 @@
 # -*- perl -*-
 
 #
-# $Id: Wm.pm,v 1.5 2001/11/18 10:07:48 eserte Exp $
+# $Id: Wm.pm,v 1.6 2002/03/08 21:13:49 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 2001 Slaven Rezic. All rights reserved.
@@ -22,7 +22,7 @@ sub Popup
 {
  my $w = shift;
  $w->configure(@_) if @_;
-# $w->idletasks;
+ $w->idletasks;
  my ($mw,$mh) = ($w->reqwidth,$w->reqheight);
  my ($rx,$ry,$rw,$rh) = (0,0,0,0);
  my $base    = $w->cget('-popover');
@@ -58,8 +58,9 @@ sub Popup
  if ($Y+$mh > $w->screenheight && $mh < $w->screenheight) { $Y = "-0" }
 # $w->Post($X,$Y); # XXX force use of geometry (because of negative coords)
  $w->positionfrom('user');
- $w->geometry(sprintf "%s%d%s%d", $X =~ /^-/ ? '-' : '+', abs(int($X)),
-	                          $Y =~ /^-/ ? '-' : '+', abs(int($Y)));
+ my $geometry = sprintf "%s%d%s%d", $X =~ /^-/ ? '-' : '+', abs(int($X)),
+                                    $Y =~ /^-/ ? '-' : '+', abs(int($Y));
+ $w->geometry($geometry);
  $w->deiconify;
 # $w->waitVisibility; # XXX seems to hang the second time???
 }

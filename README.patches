@@ -34,3 +34,5 @@ README for the patches directory
 * hlist22.tar.gz: patches to the tix C files for HList and DItem by Rob Seegel
 
 * Tk.xs.diff: add method GetPixmap
+
+* cygwin.patch: patch by Eric Fifer

@@ -42,6 +42,9 @@ README for the t directory
 * pane.t
   - missing submethods (e.g. gridRowconfigure)
 
+* place.t
+  - placeInfo -relwidth/-relheight does not return float values
+
 * text.t
   - NYI
 

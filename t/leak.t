@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: leak.t,v 1.2 2002/03/02 20:10:57 eserte Exp $
+# $Id: leak.t,v 1.3 2002/03/07 23:04:54 eserte Exp $
 # Author: Slaven Rezic
 #
 
@@ -44,7 +44,7 @@ BEGIN {
 	push @todos, $1 if (/^\#\s+TODO:\s+(\d+)/);
     }
     close DATA;
-    plan tests => 1, todo => [@todos];
+    plan tests => 8, todo => [@todos];
 }
 
 my $mw = new MainWindow;
@@ -121,6 +121,17 @@ for(1..100) {
     $btn2->destroy;
 }
 $c2 = Devel::Leak::NoteSV($handle);
+ok($c1, $c2);
+
+# Tests for leaking fileevent callbacks
+$mw->fileevent(\*STDOUT, 'readable', sub { });
+$mw->fileevent(\*STDOUT, 'readable','');
+
+# TODO: 8
+$c1 = Devel::Leak::NoteSV($handle);
+$mw->fileevent(\*STDOUT, 'readable', sub { });
+$mw->fileevent(\*STDOUT, 'readable','');
+$c2 = Devel::Leak::CheckSV($handle);
 ok($c1, $c2);
 
 sub test { warn }

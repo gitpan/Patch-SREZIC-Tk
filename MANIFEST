@@ -22,8 +22,6 @@ Tk/LabFrame.pm
 Tk/LabFrame.pod
 Tk/FileSelect.pm
 Tk/Scrollbar.pm
-Tk/CmdLine.pm
-Tk/CmdLine.pod
 t/balloon.t
 t/busy.t
 t/dialogbox.t
@@ -33,6 +31,7 @@ t/listbox.t
 t/listbox-nextprior.t
 t/mousewheel.t
 t/pane.t
+t/place.t
 t/text.t
 t/wm-popup.t
 t/wm-post.t
@@ -58,6 +57,7 @@ patches/tkPlace.c.diff
 patches/hlist22.tar.gz
 patches/pTkCallback.c.diff
 patches/Tk.xs.diff
+patches/cygwin.patch
 README.demos
 demos/widtrib/balloon.pl
 demos/widtrib/notebook-additional.pl

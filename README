@@ -22,26 +22,33 @@ INSTALLATION
     To avoid the widget tests to flicker over your screen, you can try
     the following (Unix/X11 only):
 
-        Xvfb :123
+        Xvfb :123 &
         env BATCH=yes DISPLAY=:123 make test
+	kill -TERM `cat /tmp/.X123-lock`
 
-    This will create a virtual (invisible) frame buffer and run the
+    This will create a virtual (invisible) X11 server and run the
     tests in this display.
 
 DESCRIPTION
 
-    Just install this module (none of the original Tk modules will be
-    overwritten) and put
+    This is a collection of patches for Perl/Tk. The distribution is
+    separated in perl-only modules, which can be used without patching
+    the original Perl/Tk distribution, and (mostly) C-level patches,
+    which can be applied manually to the original Perl/Tk source.
+
+    To use the perl module patches, just install this module (none of
+    the original Tk modules will be overwritten) and put
 
         use Patch::SREZIC::Tk
 
     on top of your script.
 
     If you set $Patch::SREZIC::Tk::VERBOSE to a true value, then the
-    list of patched modules will be printed on the screen.
+    list of patched modules will be printed on the screen for each
+    invocation of a Perl/Tk program.
 
-    Further, C-level (mostly) patches are in the patches directory.
-    Please see README.patches.
+    The C-level patches are in the patches directory. Please see
+    README.patches.
 
 PATCHES
 
@@ -49,7 +56,8 @@ PATCHES
     README.patches and README.demos.
 
     * Tk/Wm.pm
-      - prevent slow raises on some window managers (workaround)
+      - Post: prevent slow raises on some window managers (workaround)
+      - Popup: adjust to not cross screen borders (fix)
 
     * Tk/Widget.pm
       - new CODE argument for Busy (new feature)
@@ -60,7 +68,6 @@ PATCHES
 
     * Tk/FBox.pm
       - new -sortcmd option (new feature)
-      - Optionmenu bugfix
       - multiple MainWindow support (fix)
       - prevent grab failures,
         see Message-ID: <377a2ed3$0$206@nntp1.ba.best.com>
@@ -103,9 +110,6 @@ PATCHES
     * Tk/Pane.pm
       - missing submethods
 
-    * Tk/Cmdline.pm
-      - contributed by Ben Pavon
-
     * Tk/Balloon.pod
       - document attachment to Listbox items (missing)
 
@@ -121,8 +125,10 @@ PATCHES
     * Tk/LabFrame.pod
       - added missing options
 
-    * Tk/Cmdline.pod
-      - contributed by Ben Pavon
+NOTES
+
+    In 800.024, the CmdLine pod in Tk/CmdLine.pm is more recent than
+    pod/CmdLine.pod.
 
 AUTHOR
 
