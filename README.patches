@@ -1,185 +1,328 @@
-README for the patches and patches-perl directories
----------------------------------------------------
-
-patches-perl contains mostly perl- or pod patches, while the patches
-directories contains mostly C level or makefile patches. The patches
-in patches-perl are already merged into the files in the Tk directory.
+README for the Perl/Tk 800.024 patchset
+---------------------------------------
 
 Here follows a description of the patches:
 
-patches-perl
-------------
+New files:
 
-    * Adjuster.pm.diff (for Tk/Adjuster.pm)
-      - now pack the adjuster in the right place if
-        pack(-in => ...) was specified
+* Tk/arrowdownwin.xbm
+  - down arrow image for the new MSWin32 style of Tk::BrowseEntry
 
-    * Balloon.pod.diff (for Tk/Balloon.pod)
-      - document attachment to Listbox items (missing)
-      - new section ADVERTISED SUBWIDGETS (missing)
+* Tk/FBox.pod
+  - Tk::FBox was not yet documented
 
-    * DialogBox.pm.diff (for Tk/DialogBox.pm)
-      - end dialog with Close window or Return if only one button
-        there (new feature)
+* Tk/IconList.pod
+  - Tk::IconList was not yet documented
 
-    * DialogBox.pod.patch (for Tk/DialogBox.pod)
-      - new section ADVERTISED SUBWIDGETS (missing)
+* t/browseentry-grabtest.t, t/browseentry-subclassing.t, t/browseentry2.t
+  - new tests for Tk::BrowseEntry
 
-    * DragDrop.pm.diff (for Tk/DragDrop.pm)
-      - fast drags do not cause false drops anymore (fix)
+* t/cursor.t
+  - test for MSWin32 loading of cursors
 
-    * Entry.pm.diff (for Tk/Entry.pm)
-      - validate methods missing (fix)
+* t/entry.t
+  - converted testsuite from Tcl/Tk 8.4.x
 
-    * FBox.pm.diff (for Tk/FBox.pm)
-      - new -sortcmd option (new feature)
-      - -filter optionally takes CODE ref (new feature)
-      - multiple MainWindow support (fix)
-      - prevent grab failures,
-        see Message-ID: <377a2ed3$0$206@nntp1.ba.best.com>
-      - no more global my variables anymore
-      - other bufixes
+* t/leak.t
+  - exhibits some memory leaks
 
-    * FBox.pod.diff (for Tk/FBox.pod)
-      - Tk::FBox was not yet documented
+* t/listbox.t
+  - converted testsuite from Tcl/Tk 8.4.x
 
-    * FileSelect.pm.diff (for Tk/FileSelect.pm)
-      - prevent unnecessary Unbusy in reread() (fix)
-      - avoid "//" (fix)
-      - directory: revert to previous directory in case of error
+Patched files:
 
-    * IconList.pm.diff (for Tk/IconList.pm)
-      - better bindings (new feature)
+* Canvas/canvtxt
+  - adjust scrollregion
 
-    * IconList.pod.diff (for Tk/IconList.pod)
-      - Tk::IconList was not yet documented
+* DragDrop/DragDrop.pm
+  - fast drags do not cause false drops anymore (fix)
 
-    * LabFrame.pm.diff (for Tk/LabFrame.pm)
-      - changes by Rob Seegel
+* DragDrop/Win32Site/Win32Site.xs
+  - removed a debug message
 
-    * LabFrame.pod.diff (for Tk/LabFrame.pod)
-      - added missing options
+* Entry/Entry.pm
+  - validate methods missing (fix)
+  - fixed endless loop, see Message-ID: <b6ajnd$ois@fidoii.CC.Lehigh.EDU>
 
-    * Listbox.pm.diff (for Tk/Listbox.pm)
-      - activate() missing in Next/Prior bindings (fix)
-      - new mouse wheel bindings (new feature)
-      - prevents errors if event is undefined in BalloonInfo
+* Event/Event.pm
+  - changed $VERSION
 
-    * Menu.pm.diff (for Tk/Menu.pm)
-      - do not automatically post cascade entries (fix)
-      - use SELF spec for -foreground (fix)
+* Event/Event.xs
+  - fix for "fileevent/DoWhenIdle timing problem changing data"
+  - fix for cygwin
 
-    * MMutil.pm.diff (Tk/MMutil.pm)
-      - Mac OS X fix by Mike Doster's supplied by Steve Lidie
+* Event/pTkCallback.c
+  - setting callbacks which are not in the array form [...]
+    but a normal sub reference leaked
 
-    * Optionmenu.pm.diff (for Tk/Optionmenu.pm)
-      - make -foreground working
+* HList/HList.pm
+  - new mouse wheel bindings (new feature)
 
-    * Pane.pm.diff (for Tk/Pane.pm)
-      - missing submethods
+* Listbox/Listbox.pm
+  - activate() missing in Next/Prior bindings (fix)
+  - new mouse wheel bindings (new feature)
+  - prevents errors if event is undefined in BalloonInfo
 
-    * Scrollbar.pm.diff (for Tk/Scrollbar.pm)
-      - mouse wheel bindings (new feature)
-      - new StartDrag, Drag, EndDrag subroutines translated from tk8.4b1 ---
-        should fix a problem with scrolling in large text widgets (fix)
+* MANIFEST
+  - reflect new files
 
-    * Text.pm.diff (for Tk/Text.pm)
-      - find/replace popup: set focus, re-arranged widgets
+* Makefile.PL
+  - add the gedi editor to the list of installed scripts
+  - fix for cygwin
+  - changed $VERSION
 
-    * Tk.pm.diff (for Tk.pm)
-      - Ev() speedup by Vadim Konovalov
-      - cease warning about undefined HOMEDRIVE etc.
+* README.cygwin
+  - update
 
-    * Widget.pm.diff (for Tk/Widget.pm)
-      - new CODE argument for Busy (new feature)
-      - mouse wheel bindings (new feature)
-      - Scrolled("Frame") automatically uses Scrolled("Pane") (new feature)
+* Scrollbar/Scrollbar.pm
+  - mouse wheel bindings (new feature)
+  - new StartDrag, Drag, EndDrag subroutines translated from tk8.4b1 ---
+    should fix a problem with scrolling in large text widgets (fix)
 
-    * Wm.pm.diff (for Tk/Wm.pm)
-      - Post: prevent slow raises on some window managers (workaround)
-      - Popup: adjust to not cross screen borders (fix)
+* Text/Text.pm
+  - find/replace popup: set focus, re-arranged widgets
+  - InsertKeypress in overstrike mode problem solved (fix by NI-S)
+  - new mouse wheel bindings (new feature)
 
+* TextList/TextList.pm
+  - new options -spacing3 and -insertwidth
+  - the combined methods (tagAdd etc.) did not work, changed all
+    occurrences to tag("add") etc.
 
-patches
--------
+* Tixish/Balloon.pm
+  - -foreground can also be set
+  - fix to workaround grab problem (may not work!)
 
-    * Canvas_canvtxt.diff: adjust scrollregion for .../Canvas/canvtxt
+* Tixish/BrowseEntry.pm
+  - provide a more Windows-like appearance for Windows platforms (this can
+    also be used for the X11 platform with the -style option)
+  - add more options and features
+  - work around some aligning problems
 
-    * Makefile.PL.diff: also install the gedi editor
+* Tixish/DialogBox.pm
+  - end dialog with Close window or Return if only one button
+    there (new feature)
 
-    * demos_demos_widget_lib_menus.pl.diff: hmmm... can't remember the
-      reason for this one
+* Tixish/DirTree.pm
+  - remove double slash
 
-    * demos_demos_widtrib_Gedi.pl.diff: adjust height to not exceed screen
+* Tixish/LabFrame.pm
+  - changes by Rob Seegel
 
-    * demos_demos_widtrib_HList2.pl.diff: enable -widget demo
+* Tixish/NoteBook.pm
+  - added Destroy bindings (why?)
+  - fixed the "vanishing" tabs, Message-ID: <87el5sq7ik.fsf@vran.herceg.de>
 
-    * messageBox.diff: deprecate the -text option in messageBox,
-      because it's not supported on Win32 (TODO: put into
-      Patch-SREZIC/Tk/Tk/Tk.pm)
+* Tk.pm
+  - Ev() speedup by Vadim Konovalov
+  - cease warning about undefined HOMEDRIVE etc.
+  - deprecated the -text option in messageBox, because it's not supported
+    on Win32
+  - changed $VERSION
 
-    * pTkCallback.c.diff: setting callbacks which are not in the array form
-      [...] but a normal sub reference leaked
+* Tk.xs
+  - added method GetPixmap
 
-    * pod_Animation.pod.diff: documentation fix (against 800.022)
+* Tk/Adjuster.pm
+  - now pack the adjuster in the right place if
+    pack(-in => ...) was specified
 
-    * tk-wm.diff: ??? (against 800.022)
+* Tk/After.pm
+  - added time method
 
-    * tkGlue.c-langsavevar.diff: Applying this patch causes some tests to
-      print warnings: "Using symbolic references is deprecated..." But I
-      can't remember who and why this was invented...
+* Tk/ErrorDialog.pm
+  - moved comments to pod/Error.pod
+  - do not close the error dialog, just withdraw it
 
-    * tkGlue.c-memoryleak.diff:
-      - avoid memory leak for $widget->destroy
-      - avoid memory leak in some canvas methods when using ids
-        instead of tags
+* Tk/FBox.pm
+  - new -sortcmd option (new feature)
+  - -filter optionally takes CODE ref (new feature)
+  - multiple MainWindow support (fix)
+  - prevent grab failures,
+    see Message-ID: <377a2ed3$0$206@nntp1.ba.best.com>
+  - no more global my variables anymore
+  - other bufixes
 
-    * tkGlue_diagnostics.diff: use Carp::confess instead of croak, so
-      better diagnostics on many places. There are reports that this
-      patch fails on HPUX10.20, so feel free to include this one.
+* Tk/FileSelect.pm
+  - prevent unnecessary Unbusy in reread() (fix)
+  - avoid "//" (fix)
+  - directory: revert to previous directory in case of error
+  - clear selection on focusin, Message-ID: <87wujnz21p.fsf@vran.herceg.de>
 
-    * tkPlace.c.diff: use doubles instead of ints for -relwidth/height
+* Tk/IconList.pm
+  - better bindings (new feature)
+
+* Tk/MMutil.pm
+  - Mac OS X fix by Mike Doster's supplied by Steve Lidie
+  - fix manpage build (different POD2MAN_EXE line with
+    ExtUtils::MakeMaker 6.10_03)
+
+* Tk/Menu.pm
+  - do not automatically post cascade entries (fix)
+  - use SELF spec for -foreground (fix)
+
+* Tk/Optionmenu.pm
+  - made -foreground working
+
+* Tk/Pane.pm
+  - missing submethods
+
+* Tk/TextUndo.pm
+  - re-enable <F5> .. <F8> to work again (fix by GSLONDON, see
+    also his Tk-TextUndo-3.500 distribution at CPAN)
+  - see on Insert
+
+* Tk/Trace.pm
+  - changed sub names to match the documentation
+
+* Tk/Widget.pm
+  - new CODE argument for Busy (new feature)
+  - mouse wheel bindings (new feature)
+  - Scrolled("Frame") automatically uses Scrolled("Pane") (new feature)
+  - added afterInfo method
+
+* Tk/Wm.pm
+  - wmGrid and wmTracing work now
+  - Popup: adjust to not cross screen borders (fix)
+
+* demos/demos/widget_lib/floor.pl
+  - use Tk::Trace instead of tie
+
+* demos/demos/widget_lib/menus.pl
+  - hmmm... can't remember the reason for this one
+
+* demos/demos/widget_lib/style.pl
+  - no more errors if called multiple times
+
+* demos/demos/widget_lib/Plot.pm
+* demos/demos/widget_lib/WidgetDemo.pm
+* demos/demos/widget_lib/arrows.pl
+* demos/demos/widget_lib/bind.pl
+* demos/demos/widget_lib/form.pl
+* demos/demos/widget_lib/hscale.pl
+* demos/demos/widget_lib/search.pl
+* demos/demos/widget_lib/vscale.pl
+* demos/widget
+  - some code cleanup by Steve
+
+* demos/demos/widtrib/Gedi.pl
+  - adjust height to not exceed screen
+
+* demos/demos/widtrib/HList2.pl
+  - enable -widget demo
+
+* demos/demos/widtrib/balloon.pl
+  - demo for balloon over listbox items
+
+* myConfig
+  - fix for cygwin
+
+* pTk/Xlib.excwin
+  - fix for cygwin
+
+* pTk/mTk/generic/tkBind.c
+  - Keysyms from keys modified by AltGr
+    were not correctly handled, at least on XFree86 version 3.3.6.
+    The issue was also reported for Windows, but not for Solaris.
+
+* pTk/mTk/generic/tkImgPhoto.c
+  - fix in error message
+
+* pTk/mTk/generic/tkPlace.c
+  - use doubles instead of ints for -relwidth/height
+
+* pTk/mTk/generic/tkTextIndex.c
+  - prevent any text command dealing with
+    undefined indices to segfault (e.g.
+        perl -Mblib -MTk -e 'tkinit->Text->see(undef)'
+    )
+
+* pTk/mTk/tixGeneric/tixDiStyle.c
+  - changed LangObjectObj to LangObjectArg
+
+* pTk/mTk/unix/tkUnixWm.c
+  - patch by Nick for raise problem under various X11 wm's
+
+* pTk/mTk/win/tkWinCursor.c
+  - implemented -cursor => 'cursor.cur' syntax for MSWin32 (highly
+    experimental!)
+
+* pTk/mTk/win/tkWinPort.h
+  - cease warning on cygwin
+
+* pTk/ptkCanvGrid.c
+  - Tk::Canvas::createGrid without a defined scrollregion,
+    see Message-ID: <87k7gwtayy.fsf@vran.herceg.de>
+
+* pod/Animation.pod
+  - documentation fix
+
+* pod/Balloon.pod
+  - documented attachment to Listbox items (missing)
+  - new section ADVERTISED SUBWIDGETS (missing)
+
+* pod/BrowseEntry.pod
+  - documented new BrowseEntry features
+
+* pod/DialogBox.pod
+  - new section ADVERTISED SUBWIDGETS (missing)
+
+* pod/Error.pod
+  - Copy documentation from ErrorDialog.pm module to Error.pod and
+    describe advertised subwidgets (fix by Steve)
+
+* pod/LabFrame.pod
+  - added missing options
+
+* pod/NoteBook.pod
+  - documented some obscure methods and options
+
+* pod/Toplevel.pod
+  - documented -title option
+
+* pod/after.pod
+  - added documentation for time method
+
+* pod/mega.pod
+  - documented Subwidget without args
+
+* pod/messageBox.pod
+  - documented valid values for -icon option on Windows
+
+* pod/options.pod
+  - -tile was missing
+  - cleanup of SEE ALSO section
+
+* pod/pack.pod
+  - documented packConfigure
+
+* ptked
+  - Update title after "Open" and "Save As"
+
+* t/Trace.t
+  - check for tkGlue.c/trace magic problem explained below
+
+* t/balloon.t
+  - new tests for balloons over listbox items
+
+* tkGlue.c
+  - avoid memory leak for $widget->destroy
+  - avoid memory leak in some canvas methods when using ids
+    instead of tags
+  - use Carp::confess instead of croak, so
+    better diagnostics on many places. There are reports that this
+    patch fails on HPUX10.20, so feel free to exclude this one
+  - the magic in Perl_trace seemed to be wrong
+
+* Tixish/DialogBox.pm
+* Tk/ColorEditor.pm
+* pod/Dialog.pod
+* pod/DialogBox.pod
+* pod/Popup.pod
+  - added Popup.pod, fixing argument handling of Dialog.pod and
+    DialogBox.pod and other Dialog modules
+
+Not yet applied:
 
     * hlist22.tar.gz: patches to the tix C files for HList and DItem
       by Rob Seegel
-
-    * Tk.xs.diff: add method GetPixmap
-
-    * cygwin.diff: patch for cygwin by Eric Fifer, some changes for 800.024
-
-    * win32site.xs.diff: removed a debug message
-
-    * tkBind.c-modeswitch.diff: Keysyms from keys modified by AltGr
-      are not correctly handled, at least on XFree86 version 3.3.6.
-      The issue was also reported for Windows, but not for Solaris.
-
-    * ptked-TextUndoPtked.diff: Update title after "Open" and "Save As"
-
-    * pod-options.diff: -tile was missing
-
-    * wincursor.diff: support for windows .cur files (do not use this, rather
-      wait for Tk804).
-
-    * cursor.cur: should be copied to demos/demos/images (only
-      necessary together with wincursor.diff patch)
-
-    * tkUnixWm.diff: patch by Nick for raise problem under various X11 wm's
-
-    * tkTextIndex.diff: prevents and text command dealing with
-      undefined indices to segfault (e.g.
-	perl -Mblib -MTk -e 'tkinit->Text->see(undef)'
-     )
-
-    * tkImgPhoto.c.diff: MatchFileFormat: fix in diagnostics message
-
-patches-t
----------
-
-    * balloon.t.diff: additional tests for listbox attachments
-
-    * entry.t.diff: converted testsuite from Tcl/Tk 8.4.x
-
-    * listbox.t.diff: converted testsuite from Tcl/Tk 8.4.x
-
-    * leak.t.diff: exhibits some memory leaks
-

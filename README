@@ -8,48 +8,26 @@ SYNOPSIS
     
 INSTALLATION
 
-    Extract the source Perl/Tk distribution:
+    perl Makefile.PL
+    make install
 
-	gzip -dc Tk800.024.tar.gz | tar xfv -
-
-    Extract the Patch distribution:
-
-	gzip -dc Patch-SREZIC-Tk-800_024.007.tar.gz | tar xfv -
-
-    Apply the patches:
-
-	cd Tk800.024
-	cat ../Patch-SREZIC-Tk-800_024.007/patches-perl/*.diff | patch -p1
-	cat ../Patch-SREZIC-Tk-800_024.007/patches/*.diff | patch -p1
-	cat ../Patch-SREZIC-Tk-800_024.007/patches-t/*.diff | patch -p1
-
-        perl Makefile.PL
-        make all test
-
-    You do not need to install the patched Tk (after all, the patches
-    are unofficial), but rather use the uninstalled directory via the
-    "blib" pragma in your scripts (or by setting PERL5OPT or with
-    command line switches):
-
-        use blib "/path/to/new/Tk800.024";
-        use Tk;
-
-    in your scripts to use the patches.
+    Read and apply the instructions of "make install".
 
 DESCRIPTION
 
-    See the files README.patches-perl, README.patches, README.tests
-    and README.demos for a complete list of patches.
+    See the file README.patches for a description of the patches.
 
     Note that it's likely that some tests in t/entry.t and t/listbox.t
     will fail. This is only due to different font sizes and/or
     inaccurate floating point comparisons and may be ignored.
+    t/entry.t and t/listbox.t are disabled on Win32 platforms, because
+    font sizes are definitely different from X11 font sizes.
 
     Some patches (like patches/hlist22.tar.gz) are not in the patch
     format and should be applied manually.
 
 AUTHOR
 
-    Slaven Rezic (slaven.rezic@berlin.de) with contributions by Rob
+    Slaven Rezic (slaven@rezic.de) with contributions by Rob
     Seegel and others (see the source modules for more info)
 
