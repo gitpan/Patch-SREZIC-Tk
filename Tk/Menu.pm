@@ -1,7 +1,7 @@
 # -*- perl -*-
 
 #
-# $Id: Menu.pm,v 1.1 2001/11/27 00:26:55 eserte Exp $
+# $Id: Menu.pm,v 1.2 2002/03/10 21:52:35 eserte Exp $
 # Author: Slaven Rezic
 #
 # This is a patch against the original Tk/Menu.pm. Please consult
@@ -16,6 +16,25 @@ package Patch::SREZIC::Tk::Menu;
 use Tk::Menu;
 package
     Tk::Menu;
+
+# Hack to use SELF config spec for -foreground
+sub InitObject
+{
+ my ($menu,$args) = @_;
+ my $menuitems = delete $args->{-menuitems};
+ $menu->SUPER::InitObject($args);
+ $menu->ConfigSpecs(-foreground => ['SELF']);
+ if (defined $menuitems)
+  {
+   # If any other args do configure now
+   if (%$args)
+    {
+     $menu->configure(%$args);
+     %$args = ();
+    }
+   $menu->AddItems(@$menuitems)
+  }
+}
 
 sub NextEntry
 {

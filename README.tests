@@ -36,6 +36,9 @@ README for the t directory
 * listbox.t
   - conversion of original Tcl/Tk test suite
 
+* menu.t
+  - check setting foreground menu color
+
 * mousewheel.t
   - mouse wheel tests
 

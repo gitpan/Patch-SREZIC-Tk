@@ -30,6 +30,7 @@ t/entry-validate.t
 t/listbox.t
 t/listbox-nextprior.t
 t/mousewheel.t
+t/menu.t
 t/pane.t
 t/place.t
 t/text.t

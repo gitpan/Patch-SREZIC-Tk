@@ -92,6 +92,7 @@ PATCHES
 
     * Tk/Menu.pm
       - do not automatically post cascade entries (fix)
+      - use SELF spec for -foreground (fix)
 
     * Tk/Listbox.pm
       - activate missing in Next/Prior bindings (fix)
