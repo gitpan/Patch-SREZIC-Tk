@@ -35,4 +35,12 @@ README for the patches directory
 
 * Tk.xs.diff: add method GetPixmap
 
-* cygwin.patch: patch by Eric Fifer
+* cygwin.patch: patch for cygwin by Eric Fifer, some changes for 800.024
+
+* win32site.xs.diff: removed a debug message
+
+* tkBind.c-modeswitch-patch: Keysyms from keys modified by AltGr are
+  not correctly handled, at least on XFree86. The issue was also
+  reported for Windows, but not for Solaris.
+
+* ptked-TextUndoPtked-patch: Update title after "Open" and "Save As"

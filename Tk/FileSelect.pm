@@ -1,7 +1,7 @@
 # -*- perl -*-
 
 #
-# $Id: FileSelect.pm,v 1.2 2002/03/11 21:43:35 eserte Exp $
+# $Id: FileSelect.pm,v 1.3 2002/03/12 08:13:10 eserte Exp $
 # Author: Slaven Rezic
 #
 # This is a patch against the original Tk/FileSelect.pm. Please consult
@@ -13,7 +13,7 @@
 
 package Patch::SREZIC::Tk::FileSelect;
 
-$VERSION = sprintf("%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 use Tk::FileSelect;
 package
@@ -86,7 +86,7 @@ sub directory
     {
      if (substr($dir,1,1) eq '/')
       {
-       $dir = $ENV{'HOME'} . substr($dir,1);
+       $dir = (defined $ENV{'HOME'} ? $ENV{'HOME'} : '') . substr($dir,1);
       }
      else
       {my ($uid,$rest) = ($dir =~ m#^~([^/]+)(/.*$)#);

@@ -1,0 +1,10 @@
+--- Tk800.024/pTk/mTk/generic/tkBind.c	Tue Mar  5 21:47:37 2002
++++ new.Tk800.024/pTk/mTk/generic/tkBind.c	Thu Mar 14 21:06:32 2002
+@@ -5053,6 +5053,7 @@
+ 	keysym = XKeycodeToKeysym(dispPtr->display, *codePtr, 0);
+ 	if (keysym == XK_Mode_switch) {
+ 	    dispPtr->modeModMask |= ShiftMask << (i/modMapPtr->max_keypermod);
++	    dispPtr->modeModMask = 0x2000;//XXX!!!
+ 	}
+ 	if ((keysym == XK_Meta_L) || (keysym == XK_Meta_R)) {
+ 	    dispPtr->metaModMask |= ShiftMask << (i/modMapPtr->max_keypermod);

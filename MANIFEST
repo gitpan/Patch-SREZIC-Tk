@@ -60,6 +60,9 @@ patches/hlist22.tar.gz
 patches/pTkCallback.c.diff
 patches/Tk.xs.diff
 patches/cygwin.patch
+patches/win32site.xs.diff
+patches/tkBind.c-modeswitch-patch
+patches/ptked-TextUndoPtked-patch
 README.demos
 demos/widtrib/balloon.pl
 demos/widtrib/notebook-additional.pl

@@ -1,7 +1,7 @@
 # -*- perl -*-
 
 #
-# $Id: Widget.pm,v 1.7 2002/02/19 22:08:10 eserte Exp $
+# $Id: Widget.pm,v 1.9 2002/03/16 15:54:31 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 2001 Slaven Rezic. All rights reserved.
@@ -79,7 +79,7 @@ sub Busy
  }
 }
 
-# obsolete:
+# XXX obsolete, should not go into the Perl/Tk distribution
 sub BindMouseWheel {
     my($w) = @_;
 
@@ -131,6 +131,38 @@ sub MouseWheelBind {
 			   unless $Tk::strictMotif;
 		   });
     }
+}
+
+# experiment: Frame => Pane
+sub Scrolled
+{
+ my ($parent,$kind,%args) = @_;
+ $kind = 'Pane' if $kind eq 'Frame';
+ # Find args that are Frame create time args
+ my @args = Tk::Frame->CreateArgs($parent,\%args);
+ my $name = delete $args{'Name'};
+ push(@args,'Name' => $name) if (defined $name);
+ my $cw = $parent->Frame(@args);
+ @args = ();
+ # Now remove any args that Frame can handle
+ foreach my $k ('-scrollbars',map($_->[0],$cw->configure))
+  {
+   push(@args,$k,delete($args{$k})) if (exists $args{$k})
+  }
+ # Anything else must be for target widget - pass at widget create time
+ my $w  = $cw->$kind(%args);
+ # Now re-set %args to be ones Frame can handle
+ %args = @args;
+ $cw->ConfigSpecs('-scrollbars' => ['METHOD','scrollbars','Scrollbars','se'],
+                  '-background' => [$w,'background','Background'],
+                  '-foreground' => [$w,'foreground','Foreground'],
+                 );
+ $cw->AddScrollbars($w);
+ $cw->Default("\L$kind" => $w);
+ $cw->Delegates('bind' => $w, 'bindtags' => $w, 'menu' => $w);
+ $cw->ConfigDefault(\%args);
+ $cw->configure(%args);
+ return $cw;
 }
 
 1;

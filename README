@@ -62,6 +62,7 @@ PATCHES
     * Tk/Widget.pm
       - new CODE argument for Busy (new feature)
       - mouse wheel bindings (new feature)
+      - Scrolled("Frame") automatically uses Scrolled("Pane") (new feature)
 
     * Tk/Entry.pm
       - validate methods missing (fix)

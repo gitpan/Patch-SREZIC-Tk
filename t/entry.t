@@ -282,7 +282,7 @@ $e->icursor(4);
 ok($e->index('insert'), 4);
 
 eval { $e->in };
-ok($@ =~ /Can\'t locate auto\/Tk\/Entry\/in\.al/, 1, $@);
+ok($@ =~ /Can\'t locate(?: file)? auto\/Tk\/Entry\/in\.al/, 1, $@);
 
 eval { $e->index };
 ok($@ =~ /wrong \# args: should be ".* index string"/, 1, $@);
@@ -346,7 +346,7 @@ $e->scan(qw(dragto 28));
 ok($e->index('@0'), 2);
 
 eval {$e->select };
-ok($@ =~ /Can\'t locate auto\/Tk\/Entry\/select\.al/, 1, $@);
+ok($@ =~ /Can\'t locate(?: file)? auto\/Tk\/Entry\/select\.al/, 1, $@);
 
 eval {$e->selection };
 ok($@ =~ /wrong \# args: should be ".* select option \?index\?"/, 1, $@);
@@ -522,7 +522,7 @@ ok($e->index('@0'), 73);
 #  } {0.0957447 0.106383 0.117021}
 
 eval { $e->gorp };
-ok($@ =~ /Can\'t locate auto\/Tk\/Entry\/gorp\.al/, 1, $@);
+ok($@ =~ /Can\'t locate(?: file)? auto\/Tk\/Entry\/gorp\.al/, 1, $@);
 
 # The test below doesn't actually check anything directly, but if run
 # with Purify or some other memory-allocation-checking program it will
