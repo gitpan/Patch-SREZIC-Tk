@@ -1,0 +1,16 @@
+--- Tk800.024/pTk/mTk/generic/tkBind.c	Tue Mar  5 21:47:37 2002
++++ new.Tk800.024/pTk/mTk/generic/tkBind.c	Mon Mar 18 21:43:22 2002
+@@ -5052,7 +5052,12 @@
+ 	}
+ 	keysym = XKeycodeToKeysym(dispPtr->display, *codePtr, 0);
+ 	if (keysym == XK_Mode_switch) {
+-	    dispPtr->modeModMask |= ShiftMask << (i/modMapPtr->max_keypermod);
++	    if (strstr(ServerVendor(dispPtr->display), "XFree86") &&
++		VendorRelease(dispPtr->display) == 3360) {
++	        dispPtr->modeModMask = 0x2000;
++	    } else {
++	        dispPtr->modeModMask |= ShiftMask << (i/modMapPtr->max_keypermod);
++	    }
+ 	}
+ 	if ((keysym == XK_Meta_L) || (keysym == XK_Meta_R)) {
+ 	    dispPtr->metaModMask |= ShiftMask << (i/modMapPtr->max_keypermod);

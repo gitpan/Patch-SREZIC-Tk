@@ -4,137 +4,52 @@ NAME
 
 SYNOPSIS
 
-        BEGIN { $Patch::SREZIC::Tk::VERBOSE = 0 }
-        use Patch::SREZIC::Tk;
-        use Tk;
-        $mw = new MainWindow
+	none
     
 INSTALLATION
 
+    Extract the source Perl/Tk distribution:
+
+	gzip -dc Tk800.024.tar.gz | tar xfv -
+
+    Extract the Patch distribution:
+
+	gzip -dc Patch-SREZIC-Tk-800_024.007.tar.gz | tar xfv -
+
+    Apply the patches:
+
+	cd Tk800.024
+	cat ../Patch-SREZIC-Tk-800_024.007/patches-perl/*.diff | patch -p1
+	cat ../Patch-SREZIC-Tk-800_024.007/patches/*.diff | patch -p1
+	cat ../Patch-SREZIC-Tk-800_024.007/patches-t/*.diff | patch -p1
+
         perl Makefile.PL
-        make all test install
+        make all test
 
-    Most of the tests are interactive. To run the tests in batch mode,
-    use (Unix only):
+    You do not need to install the patched Tk (after all, the patches
+    are unofficial), but rather use the uninstalled directory via the
+    "blib" pragma in your scripts (or by setting PERL5OPT or with
+    command line switches):
 
-        env BATCH=yes make test
+        use blib "/path/to/new/Tk800.024";
+        use Tk;
 
-    To avoid the widget tests to flicker over your screen, you can try
-    the following (Unix/X11 only):
-
-        Xvfb :123 &
-        env BATCH=yes DISPLAY=:123 make test
-	kill -TERM `cat /tmp/.X123-lock`
-
-    This will create a virtual (invisible) X11 server and run the
-    tests in this display.
+    in your scripts to use the patches.
 
 DESCRIPTION
 
-    This is a collection of patches for Perl/Tk. The distribution is
-    separated in perl-only modules, which can be used without patching
-    the original Perl/Tk distribution, and (mostly) C-level patches,
-    which can be applied manually to the original Perl/Tk source.
+    See the files README.patches-perl, README.patches, README.tests
+    and README.demos for a complete list of patches.
 
-    To use the perl module patches, just install this module (none of
-    the original Tk modules will be overwritten) and put
+    Note that it's likely that some tests in t/entry.t and t/listbox.t
+    will fail. This is only due to different font sizes and/or
+    inaccurate floating point comparisons and may be ignored.
 
-        use Patch::SREZIC::Tk
-
-    on top of your script.
-
-    If you set $Patch::SREZIC::Tk::VERBOSE to a true value, then the
-    list of patched modules will be printed on the screen for each
-    invocation of a Perl/Tk program.
-
-    The C-level patches are in the patches directory. Please see
-    README.patches.
-
-PATCHES
-
-    Here is a short list of the patches for the perl modules. See also
-    README.patches and README.demos.
-
-    * Tk/Wm.pm
-      - Post: prevent slow raises on some window managers (workaround)
-      - Popup: adjust to not cross screen borders (fix)
-
-    * Tk/Widget.pm
-      - new CODE argument for Busy (new feature)
-      - mouse wheel bindings (new feature)
-      - Scrolled("Frame") automatically uses Scrolled("Pane") (new feature)
-
-    * Tk/Entry.pm
-      - validate methods missing (fix)
-
-    * Tk/FBox.pm
-      - new -sortcmd option (new feature)
-      - multiple MainWindow support (fix)
-      - prevent grab failures,
-        see Message-ID: <377a2ed3$0$206@nntp1.ba.best.com>
-      - other bufixes
-
-    * Tk/IconList.pm
-      - better bindings (new feature)
-
-    * Tk/HList.pm
-      - some patches by Rob Seegel regarding bindigns and -selectmodes
-      - distinction between "active" and "anchor"
-
-    * Tk/DialogBox.pm
-      - end dialog with Close window or Return if only one button
-        there (new feature)
-
-    * Tk/DragDrop.pm
-      - fast drags do not cause false drops anymore (fix)
-
-    * Tk/DragDrop/XDNDSite.pm
-      - fixed some XDND issues with Konqueror and gmc
-
-    * Tk/Menu.pm
-      - do not automatically post cascade entries (fix)
-      - use SELF spec for -foreground (fix)
-
-    * Tk/Listbox.pm
-      - activate missing in Next/Prior bindings (fix)
-      - new mouse wheel bindings (new feature)
-      - prevents errors if event is undefined in BalloonInfo
-
-    * Tk/FileSelect.pm
-      - prevent unnecessary Unbusy in reread() (fix)
-      - directory: revert to previous directory in case of error
-
-    * Tk/LabFrame.pm
-      - changes by Rob Seegel
-
-    * Tk/Scrollbar.pm
-      - mouse wheel bindings (new feature)
-
-    * Tk/Pane.pm
-      - missing submethods
-
-    * Tk/Balloon.pod
-      - document attachment to Listbox items (missing)
-
-    * Tk/FBox.pod
-      - not yet documented
-
-    * Tk/HList.pod
-      - changes by Rob Seegel
-
-    * Tk/IconList.pod
-      - not yet documented
-
-    * Tk/LabFrame.pod
-      - added missing options
-
-NOTES
-
-    In 800.024, the CmdLine pod in Tk/CmdLine.pm is more recent than
-    pod/CmdLine.pod.
+    Some patches (like patches/hlist22.tar.gz) are not in the patch
+    format and should be applied manually.
 
 AUTHOR
 
-    Slaven Rezic (slaven.rezic@berlin.de), Rob Seegel and other (see
-    the source modules for more info)
+    Slaven Rezic (slaven.rezic@berlin.de) with contributions by Rob
+    Seegel and others (see the source modules for more info)
 

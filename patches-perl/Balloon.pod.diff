@@ -1,0 +1,64 @@
+--- Tk800.024/pod/Balloon.pod	Tue Mar  5 21:47:43 2002
++++ new.Tk800.024/pod/Balloon.pod	Mon Mar 18 21:03:00 2002
+@@ -34,6 +34,14 @@
+ 				},
+ 	      );
+ 
++    # Balloon attached to items in a listbox widget:
++    $b->attach($listbox, -balloonposition => 'mouse',
++			 -msg => ['first listbox element',
++				  '2nd listbox element',
++				  ...
++				 ],
++	      );
++
+ =head1 DESCRIPTION
+ 
+ B<Balloon> provides the framework to create and attach help
+@@ -41,15 +49,15 @@
+ widget for more than a specified amount of time, a help balloon is
+ popped up.
+ 
+-=head2 Balloons and Menus
++=head2 Balloons and Menus or Listboxes
+ 
+-If the balloon is attached to a B<Menu> widget and the message arguments
+-are array references, then each element in the array will be the
+-message corresponding to a menu entry. The balloon message will then
+-be shown for the entry which the mouse pauses over. Otherwise it is
+-assumed that the balloon is to be attached to the B<Menu> as a whole.
+-You can have separate status and balloon messages just like normal
+-balloons.
++If the balloon is attached to a B<Menu> or B<Listbox> widget and the
++message arguments are array references, then each element in the array
++will be the message corresponding to a menu entry or listbox element.
++The balloon message will then be shown for the entry which the mouse
++pauses over. Otherwise it is assumed that the balloon is to be
++attached to the B<Menu> or B<Listbox> as a whole. You can have
++separate status and balloon messages just like normal balloons.
+ 
+ =head2 Balloons and Canvases
+ 
+@@ -198,6 +206,10 @@
+ 
+ Destroys the specified balloon.
+ 
++=head1 ADVERTISED SUBWIDGETS
++
++The balloon label is advertised as C<message>.
++
+ =head1 EXAMPLES
+ 
+ See the balloon demo included with the widget demo script that came with
+@@ -222,7 +234,10 @@
+ 
+ =head1 BUGS
+ 
+-Hopefully none, probably some.
++If using balloons attached to listbox entries or canvas items in a
++scrolled widget, then the subwidget have to be used:
++
++    $balloon->attach($w->Subwidget("scrolled"), -msg => ...);
+ 
+ =head1 AUTHORS
+ 

@@ -1,0 +1,10 @@
+--- Tk800.024/Tk/Optionmenu.pm	Tue Mar  5 21:47:44 2002
++++ new.Tk800.024/Tk/Optionmenu.pm	Fri May 24 20:07:45 2002
+@@ -34,6 +34,7 @@
+                  -options => ['METHOD', undef, undef, undef],
+ 		 -variable=> ['PASSIVE', undef, undef, undef],
+ 		 -font    => [['SELF',$menu], undef, undef, undef],
++		 -foreground => [['SELF', 'CHILDREN'], undef, undef, undef],
+ 
+    -takefocus          => [ qw/SELF takefocus          Takefocus          1/ ],
+    -highlightthickness => [ qw/SELF highlightThickness HighlightThickness 1/ ],

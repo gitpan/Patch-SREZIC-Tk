@@ -1,0 +1,68 @@
+--- Tk800.024/Text/Text.pm	Tue Mar  5 21:47:44 2002
++++ new.Tk800.024/Text/Text.pm	Sun Mar 24 16:53:17 2002
+@@ -1006,35 +1006,36 @@
+  my $direction = '-forward';
+  $frame->Radiobutton(
+   variable => \$direction,
+-  text => '-forward',value => '-forward' )
++  text => 'forward',value => '-forward' )
+   ->grid(-row=> 2, -column=>1, -padx=> 20, -sticky => 'nw');
+  $frame->Radiobutton(
+   variable => \$direction,
+-  text => '-backward',value => '-backward' )
++  text => 'backward',value => '-backward' )
+   ->grid(-row=> 3, -column=>1, -padx=> 20, -sticky => 'nw');
+ 
+  $frame->Label(text=>"Mode:")
+   ->grid(-row=> 1, -column=>2, -padx=> 20, -sticky => 'nw');
+  my $mode = '-exact';
+  $frame->Radiobutton(
+-  variable => \$mode, text => '-exact',value => '-exact' )
++  variable => \$mode, text => 'exact',value => '-exact' )
+   ->grid(-row=> 2, -column=>2, -padx=> 20, -sticky => 'nw');
+  $frame->Radiobutton(
+-  variable => \$mode, text => '-regexp',value => '-regexp' )
++  variable => \$mode, text => 'regexp',value => '-regexp' )
+   ->grid(-row=> 3, -column=>2, -padx=> 20, -sticky => 'nw');
+ 
+  $frame->Label(text=>"Case:")
+   ->grid(-row=> 1, -column=>3, -padx=> 20, -sticky => 'nw');
+  my $case = '-case';
+  $frame->Radiobutton(
+-  variable => \$case, text => '-case',value => '-case' )
++  variable => \$case, text => 'case',value => '-case' )
+   ->grid(-row=> 2, -column=>3, -padx=> 20, -sticky => 'nw');
+  $frame->Radiobutton(
+-  variable => \$case, text => '-nocase',value => '-nocase' )
++  variable => \$case, text => 'nocase',value => '-nocase' )
+   ->grid(-row=> 3, -column=>3, -padx=> 20, -sticky => 'nw');
+ 
+  ######################################################
+  my $find_entry = $pop->Entry(width=>25);
++ $find_entry->focus;
+ 
+  my $button_find = $pop->Button(text=>'Find',
+   command => sub {$w->FindNext ($direction,$mode,$case,$find_entry->get()),} )
+@@ -1067,6 +1068,8 @@
+    {$find_entry->insert('insert', $selected);}
+   }
+ 
++ $find_entry->icursor(0);
++
+  my ($replace_entry,$button_replace,$button_replace_all);
+  unless ($find_only)
+   {
+@@ -1095,9 +1098,12 @@
+   command => sub {$w->FindAll($mode,$case,$find_entry->get());} )
+   ->pack(-side => 'left');
+ 
+-  my $button_cancel = $pop->Button(text=>'Cancel',
++ my $button_cancel = $pop->Button(text=>'Cancel',
+   command => sub {$pop->destroy()} )
+   ->pack(-side => 'left');
++
++ $find_entry->bind("<Return>" => [$button_find, 'invoke']);
++ $find_entry->bind("<Escape>" => [$button_cancel, 'invoke']);
+ 
+  $pop->resizable('yes','no');
+  return $pop;

@@ -1,0 +1,17 @@
+--- Tk800.024/DragDrop/DragDrop.pm	Tue Mar  5 21:47:42 2002
++++ new.Tk800.024/DragDrop/DragDrop.pm	Wed Apr 17 22:39:31 2002
+@@ -279,11 +279,13 @@
+    my $seln = $token->cget('-selection');
+    unless ($token->Callback(-predropcommand => $seln, $site))
+     {
+-     my $id = $token->after(2000,[$token,'Done']);
++# XXX This is ugly if the user restarts a drag within the 2000 ms:
++#     my $id = $token->after(2000,[$token,'Done']);
+      my $w = $token->parent;
+      $token->InstallHandlers;
+      $site->Drop($token,$seln,$e);
+      $token->Callback(-postdropcommand => $seln);
++     $token->Done;
+     }
+   }
+  else

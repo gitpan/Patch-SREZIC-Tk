@@ -1,0 +1,11 @@
+--- Tk800.024/Entry/Entry.pm	Tue Mar  5 21:47:43 2002
++++ new.Tk800.024/Entry/Entry.pm	Mon Mar 18 20:03:10 2002
+@@ -31,7 +31,7 @@
+ sub Tk_cmd { \&Tk::entry }
+ 
+ Tk::Methods('bbox','delete','get','icursor','index','insert','scan',
+-            'selection','xview');
++            'selection','validate','xview');
+ 
+ use Tk::Submethods ( 'selection' => [qw(clear range adjust present to from)],
+ 		     'xview'     => [qw(moveto scroll)],

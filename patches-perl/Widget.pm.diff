@@ -1,0 +1,85 @@
+--- Tk800.024/Tk/Widget.pm	Tue Mar  5 21:48:37 2002
++++ new.Tk800.024/Tk/Widget.pm	Sun Mar 24 17:21:35 2002
+@@ -818,8 +818,24 @@
+ 
+ sub Busy
+ {
+- my ($w,%args) = @_;
++ my ($w,@args) = @_;
+  return unless $w->viewable;
++ my($sub, %args);
++ for(my $i=0; $i<=$#args; $i++)
++  {
++   if (ref $args[$i] eq 'CODE')
++    {
++     if (defined $sub)
++      {
++       croak "Multiple code definitions not allowed in Tk::Widget::Busy";
++      }
++     $sub = $args[$i];
++    }
++   else
++    {
++     $args{$args[$i]} = $args[$i+1]; $i++;
++    }
++  }
+  my $cursor  = delete $args{'-cursor'};
+  my $recurse = delete $args{'-recurse'};
+  $cursor  = 'watch' unless defined $cursor;
+@@ -856,6 +872,13 @@
+  $w->update;
+  eval {local $SIG{'__DIE__'};  $w->grab };
+  $w->update;
++ if ($sub)
++  {
++   eval { $sub->() };
++   my $err = $@;
++   $w->Unbusy(-recurse => $recurse);
++   die $err if $err;
++  }
+ }
+ 
+ sub _busy
+@@ -960,6 +983,34 @@
+  $mw->XscrollBind($class);
+ }
+ 
++sub MouseWheelBind
++{
++ my($mw,$class) = @_;
++
++ # The MouseWheel will typically only fire on Windows. However, one
++ # could use the "event generate" command to produce MouseWheel
++ # events on other platforms.
++
++ $mw->Tk::bind($class, '<MouseWheel>',
++	       [ sub { $_[0]->yview('scroll',-($_[1]/120)*3,'units') }, Tk::Ev("D")]);
++
++ if ($Tk::platform eq 'unix')
++  {
++   # Support for mousewheels on Linux/Unix commonly comes through mapping
++   # the wheel to the extended buttons.  If you have a mousewheel, find
++   # Linux configuration info at:
++   #   http://www.inria.fr/koala/colas/mouse-wheel-scroll/
++   $mw->Tk::bind($class, '<4>',
++		 sub { $_[0]->yview('scroll', -3, 'units')
++			   unless $Tk::strictMotif;
++		   });
++   $mw->Tk::bind($class, '<5>',
++		 sub { $_[0]->yview('scroll', 3, 'units')
++			   unless $Tk::strictMotif;
++		   });
++  }
++}
++
+ sub ScrlListbox
+ {
+  my $parent = shift;
+@@ -1096,6 +1147,7 @@
+ sub Scrolled
+ {
+  my ($parent,$kind,%args) = @_;
++ $kind = 'Pane' if $kind eq 'Frame';
+  # Find args that are Frame create time args
+  my @args = Tk::Frame->CreateArgs($parent,\%args);
+  my $name = delete $args{'Name'};

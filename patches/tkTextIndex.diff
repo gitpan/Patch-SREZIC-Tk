@@ -1,0 +1,11 @@
+--- Tk800.024/pTk/mTk/generic/tkTextIndex.c	Tue Mar  5 21:47:38 2002
++++ new.Tk800.024/pTk/mTk/generic/tkTextIndex.c	Fri Aug 16 09:19:13 2002
+@@ -212,6 +212,8 @@
+     int wantLast, result;
+     char c;
+ 
++    if (*string == 0) goto error;
++
+     /*
+      *---------------------------------------------------------------------
+      * Stage 1: check to see if the index consists of nothing but a mark

@@ -1,0 +1,19 @@
+--- Tk800.024/demos/demos/widtrib/HList2.pl	Tue Mar  5 21:47:36 2002
++++ new.Tk800.024/demos/demos/widtrib/HList2.pl	Mon Aug 12 00:08:39 2002
+@@ -65,7 +65,6 @@
+ 	}
+     };
+     my $rnd_window = sub {
+-	return undef; # XXX disable for now
+ 	my $yn = int(rand(10));
+ 	if ($yn == 3) {
+ 	    ('Button', 'Entry')[rand(2)];
+@@ -88,7 +87,7 @@
+ 	    my $btn;
+ 	    my $style = $h->ItemStyle($style_type);
+ 	    if ($style_type eq 'window') {
+-		$style->configure(-pady => 0, -padx => 0);
++		$style->configure(-pady => 0, -padx => 0, -anchor => "nw");
+ 		if ($window eq 'Button') {
+ 		    $btn = $h->Button
+ 		      (-text => 'Click me!',

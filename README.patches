@@ -1,46 +1,185 @@
-README for the patches directory
---------------------------------
+README for the patches and patches-perl directories
+---------------------------------------------------
 
-* Canvas_canvtxt: adjust scrollregion for .../Canvas/canvtxt
+patches-perl contains mostly perl- or pod patches, while the patches
+directories contains mostly C level or makefile patches. The patches
+in patches-perl are already merged into the files in the Tk directory.
 
-* Makefile.PL: also install the gedi editor
+Here follows a description of the patches:
 
-* demos_demos_widget_lib_menus.pl: hmmm... can't remember the reason
-  for this one
+patches-perl
+------------
 
-* demos_demos_widtrib_Gedi.pl: adjust height to not exceed screen
+    * Adjuster.pm.diff (for Tk/Adjuster.pm)
+      - now pack the adjuster in the right place if
+        pack(-in => ...) was specified
 
-* messageBox.diff: deprecate the -text option in messageBox, because
-  it's not supported on Win32 (TODO: put into Patch-SREZIC/Tk/Tk/Tk.pm)
+    * Balloon.pod.diff (for Tk/Balloon.pod)
+      - document attachment to Listbox items (missing)
+      - new section ADVERTISED SUBWIDGETS (missing)
 
-* pTkCallback.c.diff: setting callbacks which are not in the array form
-  [...] but a normal sub reference leaked
+    * DialogBox.pm.diff (for Tk/DialogBox.pm)
+      - end dialog with Close window or Return if only one button
+        there (new feature)
 
-* pod_Animation.pod: documentation fix (against 800.022)
+    * DialogBox.pod.patch (for Tk/DialogBox.pod)
+      - new section ADVERTISED SUBWIDGETS (missing)
 
-* tk-wm-patch: ??? (against 800.022)
+    * DragDrop.pm.diff (for Tk/DragDrop.pm)
+      - fast drags do not cause false drops anymore (fix)
 
-* tkGlue.c-langsavevar: ???
+    * Entry.pm.diff (for Tk/Entry.pm)
+      - validate methods missing (fix)
 
-* tkGlue.c-memoryleak:
-  - avoid memory leak for $widget->destroy
-  - avoid memory leak in some canvas methods when using ids instead of tags
+    * FBox.pm.diff (for Tk/FBox.pm)
+      - new -sortcmd option (new feature)
+      - -filter optionally takes CODE ref (new feature)
+      - multiple MainWindow support (fix)
+      - prevent grab failures,
+        see Message-ID: <377a2ed3$0$206@nntp1.ba.best.com>
+      - no more global my variables anymore
+      - other bufixes
 
-* tkGlue_diagnostics.diff: use Carp::confess instead of croak, so
-  better diagnostics on many places
+    * FBox.pod.diff (for Tk/FBox.pod)
+      - Tk::FBox was not yet documented
 
-* tkPlace.c.diff: use doubles instead of ints for -relwidth/height
+    * FileSelect.pm.diff (for Tk/FileSelect.pm)
+      - prevent unnecessary Unbusy in reread() (fix)
+      - avoid "//" (fix)
+      - directory: revert to previous directory in case of error
 
-* hlist22.tar.gz: patches to the tix C files for HList and DItem by Rob Seegel
+    * IconList.pm.diff (for Tk/IconList.pm)
+      - better bindings (new feature)
 
-* Tk.xs.diff: add method GetPixmap
+    * IconList.pod.diff (for Tk/IconList.pod)
+      - Tk::IconList was not yet documented
 
-* cygwin.patch: patch for cygwin by Eric Fifer, some changes for 800.024
+    * LabFrame.pm.diff (for Tk/LabFrame.pm)
+      - changes by Rob Seegel
 
-* win32site.xs.diff: removed a debug message
+    * LabFrame.pod.diff (for Tk/LabFrame.pod)
+      - added missing options
 
-* tkBind.c-modeswitch-patch: Keysyms from keys modified by AltGr are
-  not correctly handled, at least on XFree86. The issue was also
-  reported for Windows, but not for Solaris.
+    * Listbox.pm.diff (for Tk/Listbox.pm)
+      - activate() missing in Next/Prior bindings (fix)
+      - new mouse wheel bindings (new feature)
+      - prevents errors if event is undefined in BalloonInfo
 
-* ptked-TextUndoPtked-patch: Update title after "Open" and "Save As"
+    * Menu.pm.diff (for Tk/Menu.pm)
+      - do not automatically post cascade entries (fix)
+      - use SELF spec for -foreground (fix)
+
+    * MMutil.pm.diff (Tk/MMutil.pm)
+      - Mac OS X fix by Mike Doster's supplied by Steve Lidie
+
+    * Optionmenu.pm.diff (for Tk/Optionmenu.pm)
+      - make -foreground working
+
+    * Pane.pm.diff (for Tk/Pane.pm)
+      - missing submethods
+
+    * Scrollbar.pm.diff (for Tk/Scrollbar.pm)
+      - mouse wheel bindings (new feature)
+      - new StartDrag, Drag, EndDrag subroutines translated from tk8.4b1 ---
+        should fix a problem with scrolling in large text widgets (fix)
+
+    * Text.pm.diff (for Tk/Text.pm)
+      - find/replace popup: set focus, re-arranged widgets
+
+    * Tk.pm.diff (for Tk.pm)
+      - Ev() speedup by Vadim Konovalov
+      - cease warning about undefined HOMEDRIVE etc.
+
+    * Widget.pm.diff (for Tk/Widget.pm)
+      - new CODE argument for Busy (new feature)
+      - mouse wheel bindings (new feature)
+      - Scrolled("Frame") automatically uses Scrolled("Pane") (new feature)
+
+    * Wm.pm.diff (for Tk/Wm.pm)
+      - Post: prevent slow raises on some window managers (workaround)
+      - Popup: adjust to not cross screen borders (fix)
+
+
+patches
+-------
+
+    * Canvas_canvtxt.diff: adjust scrollregion for .../Canvas/canvtxt
+
+    * Makefile.PL.diff: also install the gedi editor
+
+    * demos_demos_widget_lib_menus.pl.diff: hmmm... can't remember the
+      reason for this one
+
+    * demos_demos_widtrib_Gedi.pl.diff: adjust height to not exceed screen
+
+    * demos_demos_widtrib_HList2.pl.diff: enable -widget demo
+
+    * messageBox.diff: deprecate the -text option in messageBox,
+      because it's not supported on Win32 (TODO: put into
+      Patch-SREZIC/Tk/Tk/Tk.pm)
+
+    * pTkCallback.c.diff: setting callbacks which are not in the array form
+      [...] but a normal sub reference leaked
+
+    * pod_Animation.pod.diff: documentation fix (against 800.022)
+
+    * tk-wm.diff: ??? (against 800.022)
+
+    * tkGlue.c-langsavevar.diff: Applying this patch causes some tests to
+      print warnings: "Using symbolic references is deprecated..." But I
+      can't remember who and why this was invented...
+
+    * tkGlue.c-memoryleak.diff:
+      - avoid memory leak for $widget->destroy
+      - avoid memory leak in some canvas methods when using ids
+        instead of tags
+
+    * tkGlue_diagnostics.diff: use Carp::confess instead of croak, so
+      better diagnostics on many places. There are reports that this
+      patch fails on HPUX10.20, so feel free to include this one.
+
+    * tkPlace.c.diff: use doubles instead of ints for -relwidth/height
+
+    * hlist22.tar.gz: patches to the tix C files for HList and DItem
+      by Rob Seegel
+
+    * Tk.xs.diff: add method GetPixmap
+
+    * cygwin.diff: patch for cygwin by Eric Fifer, some changes for 800.024
+
+    * win32site.xs.diff: removed a debug message
+
+    * tkBind.c-modeswitch.diff: Keysyms from keys modified by AltGr
+      are not correctly handled, at least on XFree86 version 3.3.6.
+      The issue was also reported for Windows, but not for Solaris.
+
+    * ptked-TextUndoPtked.diff: Update title after "Open" and "Save As"
+
+    * pod-options.diff: -tile was missing
+
+    * wincursor.diff: support for windows .cur files (do not use this, rather
+      wait for Tk804).
+
+    * cursor.cur: should be copied to demos/demos/images (only
+      necessary together with wincursor.diff patch)
+
+    * tkUnixWm.diff: patch by Nick for raise problem under various X11 wm's
+
+    * tkTextIndex.diff: prevents and text command dealing with
+      undefined indices to segfault (e.g.
+	perl -Mblib -MTk -e 'tkinit->Text->see(undef)'
+     )
+
+    * tkImgPhoto.c.diff: MatchFileFormat: fix in diagnostics message
+
+patches-t
+---------
+
+    * balloon.t.diff: additional tests for listbox attachments
+
+    * entry.t.diff: converted testsuite from Tcl/Tk 8.4.x
+
+    * listbox.t.diff: converted testsuite from Tcl/Tk 8.4.x
+
+    * leak.t.diff: exhibits some memory leaks
+
