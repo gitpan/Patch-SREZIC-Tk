@@ -19,6 +19,8 @@
 #
 # These are the commands needed to create/delete files/directories:
 #
+touch 'BUGS'
+chmod 0660 'BUGS'
 touch 'Tk/arrowdownwin.xbm'
 chmod 0440 'Tk/arrowdownwin.xbm'
 touch 'pod/FBox.pod'
@@ -48,6 +50,47 @@ exit
 #### End of Preamble ####
 
 #### Patch data follows ####
+gdiff -up /dev/null '/usr/local/src/work/Tk800/BUGS'
+Index: ./BUGS
+*** ./BUGS	Thu Jan  1 01:00:00 1970
+--- ./BUGS	Fri May  9 08:36:22 2003
+***************
+*** 0 ****
+--- 1,34 ----
++ BUGS
++ 
++ - $w->cget(-cursor) returns a wrong value if the -cursor was
++   constructed with an anonymous array
++ 
++ - sporadic core dumps on the end of bbbike with the following backtrace:
++ #0  0x283f5594 in Tk_CanvasEventuallyRedraw ()
++    from /usr/perl5.8.0/lib/site_perl/5.8.0/i386-freebsd-64int/auto/Tk/Canvas/Canvas.so
++ #1  0x284010a5 in ImageChangedProc ()
++    from /usr/perl5.8.0/lib/site_perl/5.8.0/i386-freebsd-64int/auto/Tk/Canvas/Canvas.so
++ #2  0x2825e532 in DeleteImage ()
++    from /usr/perl5.8.0/lib/site_perl/5.8.0/i386-freebsd-64int/auto/Tk/Tk.so
++ #3  0x2825e5cb in TkDeleteAllImages ()
++    from /usr/perl5.8.0/lib/site_perl/5.8.0/i386-freebsd-64int/auto/Tk/Tk.so
++ #4  0x2827f0bd in Tk_DestroyWindow ()
++    from /usr/perl5.8.0/lib/site_perl/5.8.0/i386-freebsd-64int/auto/Tk/Tk.so
++ #5  0x2824dbc5 in Tk_DestroyCmd ()
++    from /usr/perl5.8.0/lib/site_perl/5.8.0/i386-freebsd-64int/auto/Tk/Tk.so
++ #6  0x2823356f in Call_Tk ()
++    from /usr/perl5.8.0/lib/site_perl/5.8.0/i386-freebsd-64int/auto/Tk/Tk.so
++ ...
++ 
++ - missing documentation: wrapper[1], $w->property, ConfigChanged,
++   Tk::LabEntry (with advertised widgets etc.)
++ 
++ - The ButtonHack in Tk::BrowseEntry looks suspicious. Does it still
++   work if there's more than one BrowseEntry per Toplevel? Maybe
++   implement a better solution: there's a per-toplevel array or hash
++   which is populated by the references to all containing BrowseEntries.
++   The references are deleted OnDestroy of the BrowseEntry.
++ 
++ 
++ Please report bugs to either the Perl/Tk Mailing list
++ <ptk@lists.Stanford.EDU> or the Perl/Tk Newsgroup <comp.lang.perl.tk>.
 gdiff -up '/usr/local/src/Tk800.024/Canvas/canvtxt' '/usr/local/src/work/Tk800/Canvas/canvtxt'
 Index: ./Canvas/canvtxt
 --- ./Canvas/canvtxt	Tue Jul 27 20:20:03 1999
@@ -134,13 +177,13 @@ Prereq:  1.22
 gdiff -up '/usr/local/src/Tk800.024/Event/Event.pm' '/usr/local/src/work/Tk800/Event/Event.pm'
 Index: ./Event/Event.pm
 --- ./Event/Event.pm	Tue Mar  5 15:27:40 2002
-+++ ./Event/Event.pm	Wed Apr 23 00:44:57 2003
++++ ./Event/Event.pm	Sat May  3 12:00:30 2003
 @@ -2,7 +2,7 @@ package Tk::Event;
  use vars qw($VERSION $XS_VERSION @EXPORT_OK);
  END { CleanupGlue() }
  $VERSION = '3.026'; # $Id: //depot/Tk8/Event/Event.pm#26 $
 -$XS_VERSION = '800.024';
-+$XS_VERSION = '800.024010';
++$XS_VERSION = '800.024011';
  require DynaLoader;
  use base  qw(Exporter DynaLoader);
  @EXPORT_OK = qw($XS_VERSION DONT_WAIT WINDOW_EVENTS  FILE_EVENTS
@@ -275,8 +318,16 @@ Prereq:  1.7
 gdiff -up '/usr/local/src/Tk800.024/MANIFEST' '/usr/local/src/work/Tk800/MANIFEST'
 Index: ./MANIFEST
 --- ./MANIFEST	Mon Sep 11 21:44:00 2000
-+++ ./MANIFEST	Fri Apr 25 15:38:40 2003
-@@ -239,6 +239,7 @@ Tk/Xrm.pm
++++ ./MANIFEST	Fri May  9 08:09:07 2003
+@@ -1,6 +1,7 @@
+ Bitmap/Bitmap.pm
+ Bitmap/Bitmap.xs
+ Bitmap/Makefile.PL
++BUGS
+ COPYING				CopyRight and License info.
+ Canvas/Canvas.pm
+ Canvas/Canvas.xs
+@@ -239,6 +240,7 @@ Tk/Xrm.pm
  Tk/act_folder.xbm
  Tk/act_folder.xpm
  Tk/anim.gif
@@ -284,7 +335,7 @@ Index: ./MANIFEST
  Tk/cbxarrow.xbm
  Tk/file.xbm
  Tk/file.xpm
-@@ -332,6 +333,7 @@ demos/demos/images/QuitPBa.xpm
+@@ -332,6 +334,7 @@ demos/demos/images/QuitPBa.xpm
  demos/demos/images/c.icon
  demos/demos/images/cursor.mask
  demos/demos/images/cursor.xbm
@@ -292,7 +343,7 @@ Index: ./MANIFEST
  demos/demos/images/dir.icon
  demos/demos/images/dir.mask
  demos/demos/images/earth.gif
-@@ -1228,10 +1230,12 @@ pod/DupName/Dialog.pod
+@@ -1228,10 +1231,12 @@ pod/DupName/Dialog.pod
  pod/Entry.pod
  pod/Error.pod
  pod/Eventloop.pod
@@ -305,7 +356,7 @@ Index: ./MANIFEST
  pod/IO.pod
  pod/Image.pod
  pod/InputO.pod
-@@ -1250,6 +1254,7 @@ pod/NoteBook.pod
+@@ -1250,6 +1255,7 @@ pod/NoteBook.pod
  pod/Optionmenu.pod
  pod/Photo.pod
  pod/Pixmap.pod
@@ -313,7 +364,7 @@ Index: ./MANIFEST
  pod/README
  pod/ROText.pod
  pod/Radiobutton.pod
-@@ -1415,14 +1420,21 @@ t/X.t
+@@ -1415,14 +1421,21 @@ t/X.t
  t/autoload.t
  t/balloon.t
  t/browseentry.t
@@ -338,17 +389,31 @@ Index: ./MANIFEST
 gdiff -up '/usr/local/src/Tk800.024/Makefile.PL' '/usr/local/src/work/Tk800/Makefile.PL'
 Index: ./Makefile.PL
 --- ./Makefile.PL	Tue Mar  5 15:00:43 2002
-+++ ./Makefile.PL	Wed Apr 23 00:39:08 2003
-@@ -6,7 +6,7 @@ BEGIN
++++ ./Makefile.PL	Sat May  3 11:22:39 2003
+@@ -6,7 +6,21 @@ BEGIN
   {
    $IsWin32 = ($^O eq 'MSWin32' || $Config{'ccflags'} =~ /-D_?WIN32_?/);
  
 -  $VERSION = '800.024';
-+  $VERSION = '800.024010';
++  #$VERSION = '800.024010';
++  open(M, "Tk.pm") or die "Can't open Tk.pm for reading VERSION: $!";
++  while(<M>)
++   {
++    if (/\$Tk::VERSION\s+=\s+'([0-9._]+)'/)
++     {
++      $VERSION = $1;
++      last;
++     }
++   }
++  close M;
++  if (!defined $VERSION)
++   {
++    die "Can't find \$Tk::VERSION in Tk.pm";
++   }
  
    $win_arch = shift @ARGV if @ARGV and $ARGV[0] =~ /^(open32|pm|x|MSWin32)$/;
    require('fix_4_os2.pl'), OS2_massage() if $^O eq 'os2';
-@@ -50,7 +50,7 @@ delete $dir->{'pTk'};
+@@ -50,7 +64,7 @@ delete $dir->{'pTk'};
  
  Tk::MMutil::TkExtMakefile(
      'VERSION'  => $VERSION,
@@ -357,7 +422,7 @@ Index: ./Makefile.PL
      'NAME'     => 'Tk',
      'DIR'      => ['pTk',reverse(sort(keys %$dir))],
      'DISTNAME' => "Tk",
-@@ -154,7 +154,7 @@ sub MY::test
+@@ -154,7 +168,7 @@ sub MY::test
  }
  
  sub MY::postamble {
@@ -366,7 +431,7 @@ Index: ./Makefile.PL
  
  html : subdirs manifypods
  	@cd pod && $(MAKE) html $(PASTHRU)
-@@ -184,6 +184,8 @@ MANIFEST : MANIFEST.SKIP $(FIRST_MAKEFIL
+@@ -184,6 +198,8 @@ MANIFEST : MANIFEST.SKIP $(FIRST_MAKEFIL
  	$(MAKE) manifest
  
  ';
@@ -896,8 +961,103 @@ Index: ./TextList/textlist_demo
 gdiff -up '/usr/local/src/Tk800.024/Tixish/Balloon.pm' '/usr/local/src/work/Tk800/Tixish/Balloon.pm'
 Index: ./Tixish/Balloon.pm
 --- ./Tixish/Balloon.pm	Mon Jan 17 20:31:18 2000
-+++ ./Tixish/Balloon.pm	Mon Apr 21 22:47:40 2003
-@@ -81,6 +81,7 @@ sub Populate {
++++ ./Tixish/Balloon.pm	Fri May  9 08:09:32 2003
+@@ -1,6 +1,12 @@
+ #
+ # The help widget that provides both "balloon" and "status bar"
+ # types of help messages.
++#
++# This is a patched version of Balloon 3.037 - it adds support
++# for different orientations of the balloon widget, depending
++# on wether there's enough space for it. The little arrow now
++# should always point directly to the client.
++# Added by Gerhard Petrowitsch (gerhard.petrowitsch@philips.com)
+ 
+ package Tk::Balloon;
+ 
+@@ -20,6 +26,13 @@ use strict;
+ 
+ my @balloons;
+ my $button_up = 0;
++my %arrows = ( TL => 'R0lGODlhBgAGAJEAANnZ2QAAAP///////yH5BAEAAAAALAAAAAAGAAYAAAINjA0HAEdwLCwMKIQfBQA7',
++	       TR => 'R0lGODlhBgAGAJEAANnZ2QAAAP///////yH5BAEAAAAALAAAAAAGAAYAAAIRBGMDwAEQkgAIAAoCABEEuwAAOw==',
++	       BR => 'R0lGODlhBgAGAJEAANnZ2QAAAP///////yH5BAEAAAAALAAAAAAGAAYAAAIPDOHHhYVRAIgIAEISQLELADs=',
++	       BL => 'R0lGODlhBgAGAJEAANnZ2QAAAP///////yH5BAEAAAAALAAAAAAGAAYAAAIPhB1xAUFALCIMKAaAWQAVADs=',
++	       NO => 'R0lGODlhAQABAJEAANnZ2f///////////yH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='
++	     );
++
+ 
+ sub ClassInit {
+     my ($class, $mw) = @_;
+@@ -42,17 +55,43 @@ sub Populate {
+     $w->configure(-background => 'black');
+     my $a = $w->Frame;
+     my $m = $w->Frame;
++    my $d = $w->Frame;
++    # the balloon arrows
++    $w->{img_tl} = $w->Photo(-data => $arrows{TL}, '-format' => 'gif');
++    $w->{img_tr} = $w->Photo(-data => $arrows{TR}, '-format' => 'gif');
++    $w->{img_bl} = $w->Photo(-data => $arrows{BL}, '-format' => 'gif');
++    $w->{img_br} = $w->Photo(-data => $arrows{BR}, '-format' => 'gif');
++    $w->{img_no} = $w->Photo(-data => $arrows{NO}, '-format' => 'gif');
++    $w->OnDestroy([$w, 'deletePhotos']);
+     $a->configure(-bd => 0);
+-    my $al = $a->Label(-bd => 0,
++    $d->configure(-bd => 0);
++    my $atl = $a->Label(-bd => 0,
++		       -relief => 'flat',
++		       -image => $w->{img_no});
++    $atl->pack(-side => 'top', -padx => 1, -pady => 1, -anchor => 'nw');
++    my $abl = $a->Label(-bd => 0,
++		       -relief => 'flat',
++		       -image => $w->{img_no});
++    $abl->pack(-side => 'bottom', -padx => 1, -pady => 1, -anchor => 'sw');
++    my $dtr = $d->Label(-bd => 0,
+ 		       -relief => 'flat',
+-		       -bitmap => '@' . Tk->findINC('balArrow.xbm'));
+-    $al->pack(-side => 'left', -padx => 1, -pady => 1, -anchor => 'nw');
++		       -image => $w->{img_no});
++    $dtr->pack(-side => 'top', -padx => 1, -pady => 1, -anchor => 'ne');
++    my $dbr = $d->Label(-bd => 0,
++		       -relief => 'flat',
++		       -image => $w->{img_no});
++    $dbr->pack(-side => 'bottom', -padx => 1, -pady => 1, -anchor => 'se');
++    # the balloon message
+     $m->configure(-bd => 0);
+     my $ml = $m->Label(-bd => 0,
+ 		       -padx => 0,
+ 		       -pady => 0,
+ 		       -text => $args->{-message});
+     $w->Advertise('message' => $ml);
++    $w->Advertise('TLarrow' => $atl);
++    $w->Advertise('TRarrow' => $dtr);
++    $w->Advertise('BLarrow' => $abl);
++    $w->Advertise('BRarrow' => $dbr);
+     $ml->pack(-side => 'left',
+ 	      -anchor => 'w',
+ 	      -expand => 1,
+@@ -61,6 +100,7 @@ sub Populate {
+ 	      -pady => 3);
+     $a->pack(-fill => 'both', -side => 'left');
+     $m->pack(-fill => 'both', -side => 'left');
++    $d->pack(-fill => 'both', -side => 'left');
+ 
+     # append to global list of balloons
+     push(@balloons, $w);
+@@ -70,6 +110,7 @@ sub Populate {
+     $w->{'menu_index_over'} = 'none';
+     $w->{'canvas_tag'} = '';
+     $w->{'canvas_tag_over'} = '';
++
+     $w->ConfigSpecs(-installcolormap => ['PASSIVE', 'installColormap', 'InstallColormap', 0],
+ 		    -initwait => ['PASSIVE', 'initWait', 'InitWait', 350],
+ 		    -state => ['PASSIVE', 'state', 'State', 'both'],
+@@ -77,10 +118,12 @@ sub Populate {
+ 		    -statusmsg => ['PASSIVE', 'statusMsg', 'StatusMsg', ''],
+ 		    -balloonmsg => ['PASSIVE', 'balloonMsg', 'BalloonMsg', ''],
+ 		    -balloonposition => ['PASSIVE', 'balloonPosition', 'BalloonPosition', 'widget'],
++#    -balloonanchor => ['PASSIVE', 'balloonAnchor', 'BalloonAnchor', 'nw'],
+ 		    -postcommand => ['CALLBACK', 'postCommand', 'PostCommand', undef],
  		    -cancelcommand => ['CALLBACK', 'cancelCommand', 'CancelCommand', undef],
  		    -motioncommand => ['CALLBACK', 'motionCommand', 'MotionCommand', undef],
  		    -background => ['DESCENDANTS', 'background', 'Background', '#C0C080'],
@@ -905,7 +1065,7 @@ Index: ./Tixish/Balloon.pm
  		    -font => [$ml, 'font', 'Font', '-*-helvetica-medium-r-normal--*-120-*-*-*-*-*-*'],
  		    -borderwidth => ['SELF', 'borderWidth', 'BorderWidth', 1]
  		   );
-@@ -125,13 +126,15 @@ sub GetOption
+@@ -125,13 +168,15 @@ sub GetOption
  sub Motion {
      my ($ewin, $x, $y, $s) = @_;
  
@@ -924,7 +1084,7 @@ Index: ./Tixish/Balloon.pm
      foreach my $w (@balloons) {
  	# if cursor has moved over the balloon -- ignore
  	next if defined $over and $over->toplevel eq $w;
-@@ -199,7 +202,9 @@ sub SwitchToClient {
+@@ -199,7 +244,9 @@ sub SwitchToClient {
      return unless Exists($w);
      return unless Exists($client);
      return unless $client->IS($w->{'client'});
@@ -935,7 +1095,7 @@ Index: ./Tixish/Balloon.pm
      my $command = $w->GetOption(-postcommand => $client);
      if (defined $command) {
  	# Execute the user's command and return if it returns false:
-@@ -217,6 +222,27 @@ sub SwitchToClient {
+@@ -217,6 +264,27 @@ sub SwitchToClient {
      $w->{'delay'}  = $w->repeat(200, ['Verify', $w, $client]);
  }
  
@@ -963,7 +1123,7 @@ Index: ./Tixish/Balloon.pm
  sub Subclient
  {
   my ($w,$data) = @_;
-@@ -236,7 +262,9 @@ sub Verify {
+@@ -236,7 +304,9 @@ sub Verify {
      my $deactivate = # DELETE? or move it to the isa-Menu section?:
  	             # ($over ne $client) or
  	             not $client->IS($w->{'client'})
@@ -974,6 +1134,83 @@ Index: ./Tixish/Balloon.pm
      if ($deactivate)
       {
        $w->Deactivate;
+@@ -288,6 +358,7 @@ sub Popup {
+ 
+     my ($x, $y);
+     my $pos = $w->GetOption(-balloonposition => $client);
++#    my $anc = $w->GetOption(-balloonanchor => $client);
+     my $postpos = delete $w->{'clients'}{$client}{'postposition'};
+     if (defined $postpos) {
+ 	# The postcommand must have returned a position for the balloon - I will use that:
+@@ -304,12 +375,46 @@ sub Popup {
+ 
+     $w->idletasks;
+     my($width, $height) = ($w->reqwidth, $w->reqheight);
+-    my $xx = ($x + $width > $w->screenwidth
+-	      ? $w->screenwidth - $width
+-	      : $x);
+-    my $yy = ($y + $height > $w->screenheight
+-	      ? $w->screenheight - $height
+-	      : $y);
++    my($xx, $yy) = ($x,$y);
++    my $ex = 0;
++    if ($x + $width > $w->screenwidth) {
++      $ex |= 1;
++    }
++    if ($y + $height > $w->screenheight) {
++      $ex |= 2;
++    }
++    if ($ex == 0) {
++      $w->Subwidget('TLarrow')->configure(-image => $w->{img_tl});
++      $w->Subwidget('TRarrow')->configure(-image => $w->{img_no});
++      $w->Subwidget('BLarrow')->configure(-image => $w->{img_no});
++      $w->Subwidget('BRarrow')->configure(-image => $w->{img_no});
++      ($xx,$yy) = ($x,$y);
++    } elsif ($ex == 1) {
++      $w->Subwidget('TLarrow')->configure(-image => $w->{img_no});
++      $w->Subwidget('TRarrow')->configure(-image => $w->{img_tr});
++      $w->Subwidget('BLarrow')->configure(-image => $w->{img_no});
++      $w->Subwidget('BRarrow')->configure(-image => $w->{img_no});
++      $x = int($client->pointerx - 2) if ($pos eq 'mouse');
++      ($xx,$yy) = ($x-$width,$y);
++    } elsif ($ex == 2) {
++      $w->Subwidget('TLarrow')->configure(-image => $w->{img_no});
++      $w->Subwidget('TRarrow')->configure(-image => $w->{img_no});
++      $w->Subwidget('BLarrow')->configure(-image => $w->{img_bl});
++      $w->Subwidget('BRarrow')->configure(-image => $w->{img_no});
++      $x = int($client->pointerx + 2) if ($pos eq 'mouse');
++      $y = int($client->pointery - 2) if ($pos eq 'mouse');
++      $y = int($client->rooty + int ($client->height/4.3)) if ($pos eq 'widget');
++      ($xx,$yy) = ($x,$y-$height);
++    } else {
++      $w->Subwidget('TLarrow')->configure(-image => $w->{img_no});
++      $w->Subwidget('TRarrow')->configure(-image => $w->{img_no});
++      $w->Subwidget('BLarrow')->configure(-image => $w->{img_no});
++      $w->Subwidget('BRarrow')->configure(-image => $w->{img_br});
++      $x = int($client->pointerx - 2) if ($pos eq 'mouse');
++      $y = int($client->pointery - 2) if ($pos eq 'mouse');
++      $y = int($client->rooty + int ($client->height/4.3)) if ($pos eq 'widget');
++      ($xx,$yy) = ($x-$width,$y-$height);
++    }
+ 
+     $w->geometry("+$xx+$yy");
+     #$w->MoveToplevelWindow($x,$y);
+@@ -356,7 +461,15 @@ sub destroy {
+     #$w->SUPER::destroy;
+     # Above doesn't seem to work but at least I have removed it from the
+     # list of balloons and maybe undef'ing the object will get rid of it.
++    $w->deletePhotos();
+     undef $w;
++}
++
++sub deletePhotos {
++    my ($w) = @_;
++    for (qw(no tl tr bl br)) {
++	$w->{"img_$_"}->delete if defined $w->{"img_$_"};
++    }
+ }
+ 
+ 1;
 gdiff -up '/usr/local/src/Tk800.024/Tixish/BrowseEntry.pm' '/usr/local/src/work/Tk800/Tixish/BrowseEntry.pm'
 Index: ./Tixish/BrowseEntry.pm
 --- ./Tixish/BrowseEntry.pm	Fri Sep  8 11:34:36 2000
@@ -1649,7 +1886,7 @@ Index: ./Tixish/LabFrame.pm
 gdiff -up '/usr/local/src/Tk800.024/Tixish/NoteBook.pm' '/usr/local/src/work/Tk800/Tixish/NoteBook.pm'
 Index: ./Tixish/NoteBook.pm
 --- ./Tixish/NoteBook.pm	Sun Apr 23 14:19:10 2000
-+++ ./Tixish/NoteBook.pm	Fri Apr 25 15:54:18 2003
++++ ./Tixish/NoteBook.pm	Thu May  1 16:19:26 2003
 @@ -50,11 +50,12 @@ sub Populate
   my ($w, $args) = @_;
  
@@ -1687,6 +1924,17 @@ Index: ./Tixish/NoteBook.pm
       my $cW = $myW - $w->{'pad-x1'} - $w->{'pad-x2'} - 2 * (defined $w->{-ipadx} ? $w->{-ipadx} : 0);
       my $cH = $myH - $w->{'pad-y1'} - $w->{'pad-y2'} - 2 * (defined $w->{-ipady} ? $w->{-ipady} : 0);
       my $cX = $w->{'pad-x1'} + (defined $w->{-ipadx} ? $w->{-ipadx} : 0);
+@@ -259,8 +264,8 @@ sub MouseDown {
+ sub MouseUp {
+     my ($w, $x, $y) = @_;
+     my $name = $w->identify($x, $y);
+-    if ((defined $name) &&
+-        ($name eq $w->{'down'}) &&
++    if ((defined $name) && (defined $w->{'down'}) &&
++	($name eq $w->{'down'}) &&
+         ($w->pagecget($name, -state) eq 'normal')) {
+         $w->raise($name);
+     } else {
 @@ -378,13 +383,7 @@ sub Resize {
  
      return unless Tk::Exists($w) && $w->{'nWindows'} && $w->{'resize'};
@@ -1720,17 +1968,29 @@ Index: ./Tixish/NoteBook.pm
  }
  
  1;
+gdiff -up '/usr/local/src/Tk800.024/Tixish/Tree.pm' '/usr/local/src/work/Tk800/Tixish/Tree.pm'
+Index: ./Tixish/Tree.pm
+--- ./Tixish/Tree.pm	Thu Dec 30 19:47:21 1999
++++ ./Tixish/Tree.pm	Thu May 22 21:42:55 2003
+@@ -33,6 +33,7 @@ sub Populate
+         -indent       => ['SELF', 'indent', 'Indent', 20],
+         -width        => ['SELF', 'width', 'Width', 20],
+         -itemtype     => ['SELF', 'itemtype', 'Itemtype', 'imagetext'],
++	-foreground   => ['SELF'],
+        );
+ }
+ 
 gdiff -up '/usr/local/src/Tk800.024/Tk.pm' '/usr/local/src/work/Tk800/Tk.pm'
 Index: ./Tk.pm
 Prereq:  1.6 
 --- ./Tk.pm	Tue Mar  5 14:55:48 2002
-+++ ./Tk.pm	Wed Apr 23 00:24:16 2003
++++ ./Tk.pm	Sat May  3 11:08:53 2003
 @@ -53,7 +53,7 @@ use Carp;
  # is created, $VERSION is checked by bootstrap
  $Tk::version     = '8.0';
  $Tk::patchLevel  = '8.0';
 -$Tk::VERSION     = '800.024';
-+$Tk::VERSION     = '800.024010'; # PATCHED!
++$Tk::VERSION     = '800.024011'; # PATCHED!
  $Tk::XS_VERSION  = $Tk::VERSION;
  $Tk::strictMotif = 0;
  
@@ -1970,7 +2230,7 @@ Index: ./Tk/ErrorDialog.pm
 gdiff -up '/usr/local/src/Tk800.024/Tk/FBox.pm' '/usr/local/src/work/Tk800/Tk/FBox.pm'
 Index: ./Tk/FBox.pm
 --- ./Tk/FBox.pm	Fri Feb 22 14:47:26 2002
-+++ ./Tk/FBox.pm	Mon Apr 21 17:53:09 2003
++++ ./Tk/FBox.pm	Fri May  9 08:09:33 2003
 @@ -45,10 +45,6 @@ use base qw(Tk::Toplevel);
  
  Construct Tk::Widget 'FBox';
@@ -2233,7 +2493,7 @@ Index: ./Tk/FBox.pm
 +    $arg =~ s!\*!.*!g;
 +    $arg = "^" . $arg . "\$";
 +    if ($] >= 5.005) {
-+	$arg = qr/$arg/;
++	$arg = qr($arg);
 +    }
 +    $arg;
  }
@@ -2542,7 +2802,7 @@ Prereq:  1.34
 gdiff -up '/usr/local/src/Tk800.024/Tk/Optionmenu.pm' '/usr/local/src/work/Tk800/Tk/Optionmenu.pm'
 Index: ./Tk/Optionmenu.pm
 --- ./Tk/Optionmenu.pm	Mon Sep 11 16:14:23 2000
-+++ ./Tk/Optionmenu.pm	Mon Apr 21 17:53:09 2003
++++ ./Tk/Optionmenu.pm	Fri May 30 23:24:37 2003
 @@ -34,6 +34,7 @@ sub Populate
                   -options => ['METHOD', undef, undef, undef],
  		 -variable=> ['PASSIVE', undef, undef, undef],
@@ -2567,6 +2827,76 @@ Index: ./Tk/Pane.pm
  sub ClassInit {
      my ($class,$mw) = @_;
      $mw->bind($class,'<Configure>',['QueueLayout',4]);
+gdiff -up '/usr/local/src/Tk800.024/Tk/Table.pm' '/usr/local/src/work/Tk800/Tk/Table.pm'
+Index: ./Tk/Table.pm
+--- ./Tk/Table.pm	Fri Mar 31 17:14:05 2000
++++ ./Tk/Table.pm	Sat Jun  7 20:51:48 2003
+@@ -164,12 +164,12 @@ sub Layout
+  my $why   = $t->{LayoutPending};
+  $t->{LayoutPending} = 0;
+ 
+- if ($sb =~ /^[ns]/)
++ if ($sb =~ /[ns]/)
+   {
+    $t->{xsb} = $t->Scrollbar(-orient => 'horizontal', -command => ['xview' => $t]) unless (defined $t->{xsb});
+    $xsb   = $t->{xsb};
+    $xs[3] = $xsb->ReqHeight;
+-   if ($sb =~ /^n/)
++   if ($sb =~ /n/)
+     {
+      $xs[1] = $tadj;
+      $tadj += $xs[3];
+@@ -185,12 +185,12 @@ sub Layout
+    $t->{xsb}->UnmapWindow if (defined $t->{xsb});
+   }
+ 
+- if ($sb =~ /[ew]$/)
++ if ($sb =~ /[ew]/)
+   {
+    $t->{ysb} = $t->Scrollbar(-orient => 'vertical', -command => ['yview' => $t]) unless (defined $t->{ysb});
+    $ysb    = $t->{ysb};
+    $ys[2]  = $ysb->ReqWidth;
+-   if ($sb =~ /w$/)
++   if ($sb =~ /w/)
+     {
+      $ys[0] = $ladj;
+      $ladj += $ys[2];
+@@ -432,6 +432,17 @@ sub rows
+  if (@_ > 1)
+   {
+    $t->_configure(-rows => $r);
++   if ($t->{Row} && @{$t->{Row}} > $r)
++    {
++     for my $y ($r .. $#{$t->{Row}})
++      {
++       for my $s (@{$t->{Row}[$y]})
++        {
++	 $s->destroy if $s;
++	}
++      }
++     splice @{ $t->{Row} }, $r;
++    }
+    $t->QueueLayout(16);
+   }
+  return $t->_cget('-rows');
+@@ -454,6 +465,17 @@ sub columns
+  if (@_ > 1)
+   {
+    $t->_configure(-columns => $r);
++   if ($t->{Row})
++    {
++     for my $row (@{$t->{Row}})
++      {
++       for my $s (@$row[$r .. $#$row])
++        {
++	 $s->destroy if $s;
++	}
++       splice @$row, $r;
++      }
++    }
+    $t->QueueLayout(16);
+   }
+  return $t->_cget('-columns');
 gdiff -up '/usr/local/src/Tk800.024/Tk/TextUndo.pm' '/usr/local/src/work/Tk800/Tk/TextUndo.pm'
 Index: ./Tk/TextUndo.pm
 --- ./Tk/TextUndo.pm	Sat Sep 29 19:48:16 2001
@@ -2666,7 +2996,20 @@ Index: ./Tk/TextUndo.pm
 gdiff -up '/usr/local/src/Tk800.024/Tk/Trace.pm' '/usr/local/src/work/Tk800/Tk/Trace.pm'
 Index: ./Tk/Trace.pm
 --- ./Tk/Trace.pm	Mon Sep 11 21:44:39 2000
-+++ ./Tk/Trace.pm	Fri Apr 25 15:35:36 2003
++++ ./Tk/Trace.pm	Fri May 30 23:16:52 2003
+@@ -3,9 +3,9 @@ package Tk::Trace;
+ use vars qw($VERSION);
+ $VERSION = '3.002'; # $Id: //depot/Tk8/Tk/Trace.pm#2 $
+ 
+-use Exporter;
+-use base qw/Exporter/;
+-@EXPORT = qw/traceVariable traceVdelete traceVinfo/;
++#use Exporter;
++#use base qw/Exporter/;
++#@EXPORT = qw/traceVariable traceVdelete traceVinfo/;
+ use Tie::Watch;
+ use strict;
+ 
 @@ -84,7 +84,7 @@ sub destroy {
      $self->Destroy(@_);                      # destroy variable
  }
@@ -2836,7 +3179,7 @@ Index: ./Tk/Widget.pm
 gdiff -up '/usr/local/src/Tk800.024/Tk/Wm.pm' '/usr/local/src/work/Tk800/Tk/Wm.pm'
 Index: ./Tk/Wm.pm
 --- ./Tk/Wm.pm	Sat Jul  8 12:16:16 2000
-+++ ./Tk/Wm.pm	Mon Apr 21 17:53:24 2003
++++ ./Tk/Wm.pm	Fri May  2 22:40:22 2003
 @@ -16,7 +16,10 @@ use strict qw(vars);
  use vars qw($VERSION);
  $VERSION = '3.023'; # $Id: //depot/Tk8/Tk/Wm.pm#23 $
@@ -2849,6 +3192,17 @@ Index: ./Tk/Wm.pm
  
  Direct Tk::Submethods ('wm' => [qw(aspect client colormapwindows command
                         deiconify focusmodel frame geometry group
+@@ -75,8 +78,8 @@ sub Post
+  $X = int($X);
+  $Y = int($Y);
+  $w->positionfrom('user');
+- # $w->geometry("+$X+$Y");
+- $w->MoveToplevelWindow($X,$Y);
++ $w->geometry("+$X+$Y");
++ # $w->MoveToplevelWindow($X,$Y);
+  $w->deiconify;
+  $w->raise;
+ }
 @@ -123,7 +126,10 @@ sub Popup
    }
   my ($X,$Y) = AnchorAdjust($w->cget('-overanchor'),$rx,$ry,$rw,$rh);
@@ -2871,6 +3225,23 @@ Index: ./Tk/arrowdownwin.xbm
 +static char arrowdownwin2_bits[] = {
 + 0x00,0xfe,0x00,0xfe,0x00,0xfe,0x00,0xfe,0x00,0xfe,0x7c,0xfe,0x38,0xfe,0x10,
 + 0xfe,0x00,0xfe,0x00,0xfe,0x00,0xfe,0x00,0xfe,0x00,0xfe};
+gdiff -up '/usr/local/src/Tk800.024/chnGlue.c' '/usr/local/src/work/Tk800/chnGlue.c'
+Index: ./chnGlue.c
+--- ./chnGlue.c	Fri Sep  8 11:27:28 2000
++++ ./chnGlue.c	Fri May  2 00:14:17 2003
+@@ -93,8 +93,12 @@ Tcl_SetChannelOption(Tcl_Interp *interp,
+   {
+    if (strcmp(newValue,"binary") == 0)
+     {
++#ifdef USE_PERLIO
++     PerlIO_binmode(f, '<', O_BINARY, Nullch);
++#else
+ #if defined(WIN32) || defined(__EMX__)  || defined(__CYGWIN__)
+      setmode(PerlIO_fileno(f), O_BINARY);
++#endif
+ #endif
+      return TCL_OK;
+     }
 gdiff -up '/usr/local/src/Tk800.024/demos/demos/widget_lib/Plot.pm' '/usr/local/src/work/Tk800/demos/demos/widget_lib/Plot.pm'
 Index: ./demos/demos/widget_lib/Plot.pm
 --- ./demos/demos/widget_lib/Plot.pm	Sat Oct  2 18:44:28 1999
@@ -3626,6 +3997,41 @@ Index: ./demos/widget
 +Steve Lidie <sol0@Lehigh.EDU>
  
  =cut
+gdiff -up '/usr/local/src/Tk800.024/lib/Tie/Watch.pm' '/usr/local/src/work/Tk800/lib/Tie/Watch.pm'
+Index: ./lib/Tie/Watch.pm
+--- ./lib/Tie/Watch.pm	Mon Sep 11 21:44:39 2000
++++ ./lib/Tie/Watch.pm	Sat Jun  7 20:46:30 2003
+@@ -255,7 +255,7 @@ sub new {
+     croak "Tie::Watch::new(): -variable is required." if not defined $variable;
+ 
+     my($type, $watch_obj) = (ref $variable, undef);
+-    if ($type =~ /SCALAR/) {
++    if ($type =~ /(SCALAR|REF)/) {
+ 	@arg_defaults{@scalar_callbacks} = (
+ 	    [\&Tie::Watch::Scalar::Destroy],  [\&Tie::Watch::Scalar::Fetch],
+ 	    [\&Tie::Watch::Scalar::Store]);
+@@ -282,7 +282,7 @@ sub new {
+     @ahsh{@margs} = @arg_defaults{@margs}; # fill in missing values
+     normalize_callbacks \%ahsh;
+ 
+-    if ($type =~ /SCALAR/) {
++    if ($type =~ /(SCALAR|REF)/) {
+         $watch_obj = tie $$variable, 'Tie::Watch::Scalar', %ahsh;
+     } elsif ($type =~ /ARRAY/) {
+         $watch_obj = tie @$variable, 'Tie::Watch::Array',  %ahsh;
+@@ -345,10 +345,10 @@ sub Unwatch {
+ 
+     my $variable = $_[0]->{-variable};
+     my $type = ref $variable;
+-    my $copy = $_[0]->{-ptr} if $type !~ /SCALAR/;
++    my $copy = $_[0]->{-ptr} if $type !~ /(SCALAR|REF)/;
+     my $shadow = $_[0]->{-shadow};
+     undef $_[0];
+-    if ($type =~ /SCALAR/) {
++    if ($type =~ /(SCALAR|REF)/) {
+ 	untie $$variable;
+     } elsif ($type =~ /ARRAY/) {
+ 	untie @$variable;
 gdiff -up '/usr/local/src/Tk800.024/myConfig' '/usr/local/src/work/Tk800/myConfig'
 Index: ./myConfig
 --- ./myConfig	Fri Mar 31 12:06:53 2000
@@ -3738,7 +4144,7 @@ gdiff -up '/usr/local/src/Tk800.024/pTk/mTk/unix/tkUnixWm.c' '/usr/local/src/wor
 Index: ./pTk/mTk/unix/tkUnixWm.c
 Prereq:  1.3 
 --- ./pTk/mTk/unix/tkUnixWm.c	Sat Sep  9 09:32:55 2000
-+++ ./pTk/mTk/unix/tkUnixWm.c	Mon Apr 21 17:53:25 2003
++++ ./pTk/mTk/unix/tkUnixWm.c	Fri May  2 19:26:06 2003
 @@ -4301,8 +4301,6 @@ TkWmProtocolEventProc(winPtr, eventPtr)
   *
   * Side effects:
@@ -4021,7 +4427,7 @@ Index: ./pod/Animation.pod
 gdiff -up '/usr/local/src/Tk800.024/pod/Balloon.pod' '/usr/local/src/work/Tk800/pod/Balloon.pod'
 Index: ./pod/Balloon.pod
 --- ./pod/Balloon.pod	Tue Nov  9 14:17:59 1999
-+++ ./pod/Balloon.pod	Mon Apr 21 17:53:09 2003
++++ ./pod/Balloon.pod	Fri Apr 25 16:48:38 2003
 @@ -34,6 +34,14 @@ Tk::Balloon - pop up help balloons.
  				},
  	      );
@@ -4061,7 +4467,24 @@ Index: ./pod/Balloon.pod
  
  =head2 Balloons and Canvases
  
-@@ -198,6 +206,10 @@ Detaches the specified I<widget> from th
+@@ -62,6 +70,16 @@ assumed that the balloon is to be attach
+ You can have separate status and balloon messages just like normal
+ balloons.
+ 
++=head2 Balloon Position
++
++By default, the balloon pops up at the lower right side of the client.
++If it would extend outside the lower screen border, its positioned at the
++upper right side. If it would extend outside the right screen border
++it's shown on the lower left side of the client. If it would extend
++outside both the lower and the right screen border, it's positioned
++at the upper left side of the client. Thus, the little arrow always
++points to the attached client.
++
+ =head1 OPTIONS
+ 
+ B<Balloon> accepts all of the options that the B<Frame> widget
+@@ -198,6 +216,10 @@ Detaches the specified I<widget> from th
  
  Destroys the specified balloon.
  
@@ -4072,7 +4495,7 @@ Index: ./pod/Balloon.pod
  =head1 EXAMPLES
  
  See the balloon demo included with the widget demo script that came with
-@@ -222,7 +234,10 @@ then the balloon will remain until you m
+@@ -222,7 +244,10 @@ then the balloon will remain until you m
  
  =head1 BUGS
  
@@ -4083,6 +4506,15 @@ Index: ./pod/Balloon.pod
 +    $balloon->attach($w->Subwidget("scrolled"), -msg => ...);
  
  =head1 AUTHORS
+ 
+@@ -232,6 +257,8 @@ B<Jason A. Smith> <smithj4@rpi.edu> adde
+ other enhancements.
+ 
+ B<Slaven Rezic> <eserte@cs.tu-berlin.de> added support for canvas items.
++
++B<Gerhard Petrowitsch> <gerhard@petrowitsch.de> added intelligent positioning
+ 
+ =head1 HISTORY
  
 gdiff -up '/usr/local/src/Tk800.024/pod/BrowseEntry.pod' '/usr/local/src/work/Tk800/pod/BrowseEntry.pod'
 Index: ./pod/BrowseEntry.pod
@@ -5256,6 +5688,36 @@ Index: ./ptked
   my $menu = $t->menu;
   $menu->cascade(-label => '~Help', -menuitems => [
                  [Button => '~About...', -command => [\&About,$ed]],
+gdiff -up '/usr/local/src/Tk800.024/ptksh' '/usr/local/src/work/Tk800/ptksh'
+Index: ./ptksh
+--- ./ptksh	Tue Jul 27 20:21:21 1999
++++ ./ptksh	Sun Apr 27 09:38:14 2003
+@@ -194,7 +194,7 @@ L<perldebug|perldebug>
+ 
+ =head1 VERSION
+ 
+-VERSION 2.01 6/18/98
++VERSION 2.02
+ 
+ =head1 AUTHORS
+ 
+@@ -217,7 +217,7 @@ use Tk;
+ use vars qw($NAME $VERSION $FONT @FONT $WIN32 $HOME $HISTFILE $HISTSAVE $PROMPT $INITFILE);
+ 
+ $NAME = 'ptksh';
+-$VERSION = '2.01';
++$VERSION = '2.02';
+ $WIN32 = 1 if $^O =~ /Win32/;
+ $HOME = $WIN32 ? ($ENV{HOMEDRIVE} . $ENV{HOMEPATH}) || 'C:\\' : $ENV{HOME} . "/";
+ @FONT = ($WIN32 ? (-font => 'systemfixed') : () );
+@@ -632,6 +632,7 @@ sub _u {
+ sub _d
+   {
+     require Data::Dumper;
++    local $Data::Dumper::Deparse = 1;
+     print Data::Dumper::Dumper(@_);
+   }
+ 
 gdiff -up '/usr/local/src/Tk800.024/t/Trace.t' '/usr/local/src/work/Tk800/t/Trace.t'
 Index: ./t/Trace.t
 --- ./t/Trace.t	Tue Jul 27 20:21:21 1999
@@ -9146,13 +9608,14 @@ Index: ./t/listbox.t
 gdiff -up '/usr/local/src/Tk800.024/tkGlue.c' '/usr/local/src/work/Tk800/tkGlue.c'
 Index: ./tkGlue.c
 --- ./tkGlue.c	Tue Mar  5 14:55:48 2002
-+++ ./tkGlue.c	Thu Apr 24 23:54:16 2003
-@@ -2261,7 +2261,16 @@ SV **args;
++++ ./tkGlue.c	Fri May 30 23:24:38 2003
+@@ -2261,7 +2261,20 @@ SV **args;
         PL_tainted = old_taint;
         DecInterp(interp, "Call_Tk");
         SvREFCNT_dec(what);
--       croak("%s",SvPV(msg,na));
 +
++       /* This causes problems with perl 5.6.1, perl5.8.1 and maybe others */
++#if 0
 +       ENTER;
 +       SAVETMPS;
 +       PUSHMARK(SP);
@@ -9160,12 +9623,14 @@ Index: ./tkGlue.c
 +       PUTBACK;
 +       perl_call_pv("Carp::confess", G_DISCARD);
 +       FREETMPS;
-+       LEAVE; 
-+       /* XXX croak("%s",SvPV(msg,na)); */
++       LEAVE;
++#else
+        croak("%s",SvPV(msg,na));
++#endif
        }
      }
     else
-@@ -3054,6 +3063,7 @@ Tk_Window tkwin;
+@@ -3054,6 +3067,7 @@ Tk_Window tkwin;
         if (info->interp != interp)
          Tcl_Panic("%s->interp=%p expected %p", cmdName, info->interp, interp);
         DecInterp(info->interp, cmdName);
@@ -9173,7 +9638,7 @@ Index: ./tkGlue.c
         sv_unmagic((SV *) hash,'~');
        }
      }
-@@ -3474,6 +3484,10 @@ static DECL_MG_UFUNC(Perl_Trace, ix, sv)
+@@ -3474,6 +3488,10 @@ static DECL_MG_UFUNC(Perl_Trace, ix, sv)
      some magic list or be careful how we insert ourselves in the list?
  
    */
@@ -9184,7 +9649,7 @@ Index: ./tkGlue.c
   if (!SvPOK(sv) && SvPOKp(sv))
    SvPOK_on(sv);
  
-@@ -3482,6 +3496,7 @@ static DECL_MG_UFUNC(Perl_Trace, ix, sv)
+@@ -3482,6 +3500,7 @@ static DECL_MG_UFUNC(Perl_Trace, ix, sv)
  
   if (!SvIOK(sv) && SvIOKp(sv))
    SvIOK_on(sv);
@@ -9192,7 +9657,7 @@ Index: ./tkGlue.c
  
   ENTER;
   SvREFCNT_inc(sv);
-@@ -3878,6 +3893,10 @@ int type;
+@@ -3878,6 +3897,10 @@ int type;
  #else
     CopSTASH(PL_curcop) = NULL;
  #endif
@@ -9203,7 +9668,20 @@ Index: ./tkGlue.c
     switch (type)
      {
       case TK_CONFIG_SCALARVAR:
-@@ -5153,7 +5172,9 @@ Tk_GetUid(key)
+@@ -4925,8 +4948,12 @@ char *start;
+  return pregexec(re,SvPVX(tmp),SvEND(tmp),start,0,
+                  tmp,REXEC_COPY_STR);
+ #else
++#  ifdef REXEC_COPY
+  return pregexec(re,string,string+strlen(string),start,0,
+                  tmp,NULL,REXEC_COPY);
++#  else
++ return pregexec(re,string,string+strlen(string),start,0,NULL,1);
++#  endif
+ #endif
+ }
+ 
+@@ -5153,7 +5180,9 @@ Tk_GetUid(key)
      HE *he;
      if (!uidHV)
       uidHV = newHV();
@@ -9218,50 +9696,54 @@ Index: ./tkGlue.c
 
 #### ApplyPatch data follows ####
 # Data version        : 1.0
-# Date generated      : Fri Apr 25 16:40:29 2003
+# Date generated      : Sat Jun  7 21:02:31 2003
 # Generated by        : makepatch 2.00_05
 # Recurse directories : Yes
 # v 'pTk/patchlevel.h' 934 1050940300 33200
+# c 'BUGS' 0 1052462182 0100660
 # p 'Canvas/canvtxt' 6143 1050940404 0100771
 # p 'DragDrop/DragDrop.pm' 7261 1051278857 0100660
 # p 'DragDrop/Win32Site/Win32Site.xs' 1357 1050940405 0100660
 # p 'Entry/Entry.pm' 13001 1051278857 0100660
-# p 'Event/Event.pm' 402 1051051497 0100664
+# p 'Event/Event.pm' 402 1051956030 0100664
 # p 'Event/Event.xs' 26309 1051280524 0100660
 # p 'Event/pTkCallback.c' 5960 1050940404 0100660
 # p 'HList/HList.pm' 12866 1051278857 0100660
 # p 'Listbox/Listbox.pm' 20944 1050940389 0100660
-# p 'MANIFEST' 33060 1051277920 0100660
-# p 'Makefile.PL' 4062 1051051148 0100660
+# p 'MANIFEST' 33060 1052460547 0100660
+# p 'Makefile.PL' 4062 1051953759 0100660
 # p 'README.cygwin' 4984 1050942496 0100660
 # p 'Scrollbar/Scrollbar.pm' 9795 1050940389 0100660
 # p 'Text/Text.pm' 41797 1051050503 0100664
 # p 'TextList/TextList.pm' 26287 1051279972 0100660
 # p 'TextList/textlist_demo' 1146 1051279978 0100771
-# p 'Tixish/Balloon.pm' 10922 1050958060 0100664
+# p 'Tixish/Balloon.pm' 10922 1052460572 0100660
 # p 'Tixish/BrowseEntry.pm' 8346 1050954605 0100660
 # p 'Tixish/DialogBox.pm' 3408 1051278858 0100660
 # p 'Tixish/DirTree.pm' 4156 1051279575 0100660
 # p 'Tixish/LabFrame.pm' 1669 1050940389 0100660
-# p 'Tixish/NoteBook.pm' 10355 1051278858 0100660
-# p 'Tk.pm' 14763 1051050256 0100664
+# p 'Tixish/NoteBook.pm' 10355 1051798766 0100664
+# p 'Tixish/Tree.pm' 4465 1053632575 0100664
+# p 'Tk.pm' 14763 1051952933 0100664
 # p 'Tk.xs' 13215 1050940404 0100660
 # p 'Tk/Adjuster.pm' 10977 1050940379 0100660
 # p 'Tk/After.pm' 1589 1051277181 0100660
 # p 'Tk/ColorEditor.pm' 22827 1051277940 0100660
 # p 'Tk/ErrorDialog.pm' 4833 1051277463 0100660
-# p 'Tk/FBox.pm' 25239 1050940389 0100660
+# p 'Tk/FBox.pm' 25239 1052460573 0100660
 # p 'Tk/FileSelect.pm' 14016 1051276306 0100660
 # p 'Tk/IconList.pm' 14377 1050940389 0100660
 # p 'Tk/MMutil.pm' 12003 1050941121 0100664
 # p 'Tk/Menu.pm' 28719 1050940389 0100660
-# p 'Tk/Optionmenu.pm' 2600 1050940389 0100660
+# p 'Tk/Optionmenu.pm' 2600 1054329877 0100660
 # p 'Tk/Pane.pm' 13078 1050940389 0100660
+# p 'Tk/Table.pm' 10288 1055011908 0100664
 # p 'Tk/TextUndo.pm' 24547 1051277025 0100664
-# p 'Tk/Trace.pm' 8917 1051277736 0100660
+# p 'Tk/Trace.pm' 8917 1054329412 0100664
 # p 'Tk/Widget.pm' 30976 1051277346 0100660
-# p 'Tk/Wm.pm' 3548 1050940404 0100660
+# p 'Tk/Wm.pm' 3548 1051908022 0100664
 # c 'Tk/arrowdownwin.xbm' 0 1050954645 0100440
+# p 'chnGlue.c' 2053 1051827257 0100660
 # p 'demos/demos/widget_lib/Plot.pm' 5586 1051279161 0100660
 # p 'demos/demos/widget_lib/WidgetDemo.pm' 2883 1051279196 0100660
 # p 'demos/demos/widget_lib/arrows.pl' 8336 1051279034 0100660
@@ -9277,6 +9759,7 @@ Index: ./tkGlue.c
 # p 'demos/demos/widtrib/HList2.pl' 2880 1050940404 0100660
 # p 'demos/demos/widtrib/balloon.pl' 5244 1051049429 0100660
 # p 'demos/widget' 17588 1051279008 0100771
+# p 'lib/Tie/Watch.pm' 17559 1055011590 0100660
 # p 'myConfig' 9292 1051047195 0100660
 # p 'pTk/Xlib.excwin' 604 1050941174 0100660
 # p 'pTk/mTk/generic/tkBind.c' 150150 1050940405 0100660
@@ -9284,12 +9767,12 @@ Index: ./tkGlue.c
 # p 'pTk/mTk/generic/tkPlace.c' 31060 1050940405 0100660
 # p 'pTk/mTk/generic/tkTextIndex.c' 20996 1050940405 0100660
 # p 'pTk/mTk/tixGeneric/tixDiStyle.c' 27320 1051044997 0100660
-# p 'pTk/mTk/unix/tkUnixWm.c' 162631 1050940405 0100660
+# p 'pTk/mTk/unix/tkUnixWm.c' 162631 1051896366 0100660
 # p 'pTk/mTk/win/tkWinCursor.c' 5315 1050949241 0100660
 # p 'pTk/mTk/win/tkWinPort.h' 3510 1050949241 0100660
 # p 'pTk/ptkCanvGrid.c' 23474 1051280290 0100660
 # p 'pod/Animation.pod' 1160 1050940379 0100660
-# p 'pod/Balloon.pod' 8144 1050940389 0100660
+# p 'pod/Balloon.pod' 8144 1051282118 0100660
 # p 'pod/BrowseEntry.pod' 2626 1050954611 0100660
 # p 'pod/Dialog.pod' 2248 1051278859 0100660
 # p 'pod/DialogBox.pod' 2493 1051278171 0100660
@@ -9306,6 +9789,7 @@ Index: ./tkGlue.c
 # p 'pod/options.pod' 24065 1051276432 0100660
 # p 'pod/pack.pod' 10489 1051280218 0100660
 # p 'ptked' 6122 1050940404 0100771
+# p 'ptksh' 17445 1051429094 0100775
 # p 't/Trace.t' 509 1051221168 0100775
 # p 't/balloon.t' 1574 1050940428 0100660
 # c 't/browseentry-grabtest.t' 0 1050954620 0100551
@@ -9315,9 +9799,9 @@ Index: ./tkGlue.c
 # c 't/entry.t' 0 1051280888 0100775
 # c 't/leak.t' 0 1050940428 0100660
 # c 't/listbox.t' 0 1050952698 0100775
-# p 'tkGlue.c' 104889 1051221256 0100660
+# p 'tkGlue.c' 104889 1054329878 0100660
 #### End of ApplyPatch data ####
 
-#### End of Patch kit [created: Fri Apr 25 16:40:29 2003] ####
-#### Patch checksum: 9272 285708 43571 ####
-#### Checksum: 9322 287254 43331 ####
+#### End of Patch kit [created: Sat Jun  7 21:02:31 2003] ####
+#### Patch checksum: 9754 302511 36649 ####
+#### Checksum: 9806 304088 38560 ####

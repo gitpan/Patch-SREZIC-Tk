@@ -5,6 +5,9 @@ Here follows a description of the patches:
 
 New files:
 
+* BUGS
+  - still unresolved bugs
+
 * Tk/arrowdownwin.xbm
   - down arrow image for the new MSWin32 style of Tk::BrowseEntry
 
@@ -69,7 +72,7 @@ Patched files:
 * Makefile.PL
   - add the gedi editor to the list of installed scripts
   - fix for cygwin
-  - changed $VERSION
+  - $VERSION now parsed dynamically from Tk.pm
 
 * README.cygwin
   - update
@@ -92,6 +95,9 @@ Patched files:
 * Tixish/Balloon.pm
   - -foreground can also be set
   - fix to workaround grab problem (may not work!)
+  - clever positioning by Gerhard Petrowitsch, see also Message-ID:
+    <OF2C408B31.E359628E-ONC1256D12.0039B5C0-C1256D12.003A1F96@diamond.philips.com>
+  - cease perl5.00404 warnings
 
 * Tixish/BrowseEntry.pm
   - provide a more Windows-like appearance for Windows platforms (this can
@@ -112,6 +118,11 @@ Patched files:
 * Tixish/NoteBook.pm
   - added Destroy bindings (why?)
   - fixed the "vanishing" tabs, Message-ID: <87el5sq7ik.fsf@vran.herceg.de>
+  - warning fix by Tomi Parviainen,
+    see Message-ID: <5cb0e56b.0305010548.6568335d@posting.google.com>
+
+* Tixish/Tree.pm
+  - -foreground works now
 
 * Tk.pm
   - Ev() speedup by Vadim Konovalov
@@ -141,6 +152,7 @@ Patched files:
   - prevent grab failures,
     see Message-ID: <377a2ed3$0$206@nntp1.ba.best.com>
   - no more global my variables anymore
+  - cease perl5.00404 warnings
   - other bufixes
 
 * Tk/FileSelect.pm
@@ -167,6 +179,14 @@ Patched files:
 * Tk/Pane.pm
   - missing submethods
 
+* Tk/Table.pm
+  - setting smaller -rows and -columns option did not reflect in a
+    shrinked table (reported by Uwe Kloss in
+    Message-ID: <bbr06v$67p$05$1@news.t-online.com>)
+  - the order of ns and ew in -scrollbars may be changed to make the
+    behavior match Scrolled() (reported by Uwe Kloss in
+    Message-ID: <bbt6gg$tvt$03$1@news.t-online.com>)
+
 * Tk/TextUndo.pm
   - re-enable <F5> .. <F8> to work again (fix by GSLONDON, see
     also his Tk-TextUndo-3.500 distribution at CPAN)
@@ -184,6 +204,11 @@ Patched files:
 * Tk/Wm.pm
   - wmGrid and wmTracing work now
   - Popup: adjust to not cross screen borders (fix)
+  - fixed 2-second delay for *re-used* dialogs
+
+* chnGlue.c
+  - fix for Tcl_SetChannelOption(translation, binary),
+    Message-ID: <b8pe63$eks@fidoii.CC.Lehigh.EDU>
 
 * demos/demos/widget_lib/floor.pl
   - use Tk::Trace instead of tie
@@ -213,6 +238,9 @@ Patched files:
 
 * demos/demos/widtrib/balloon.pl
   - demo for balloon over listbox items
+
+* lib/Tie/Watch.pm
+  - handle REF same as SCALAR
 
 * myConfig
   - fix for cygwin
@@ -276,6 +304,7 @@ Patched files:
 
 * pod/NoteBook.pod
   - documented some obscure methods and options
+  - warning fixes
 
 * pod/Toplevel.pod
   - documented -title option
@@ -299,6 +328,9 @@ Patched files:
 * ptked
   - Update title after "Open" and "Save As"
 
+* ptksh
+  - use Deparse in d command
+
 * t/Trace.t
   - check for tkGlue.c/trace magic problem explained below
 
@@ -309,10 +341,8 @@ Patched files:
   - avoid memory leak for $widget->destroy
   - avoid memory leak in some canvas methods when using ids
     instead of tags
-  - use Carp::confess instead of croak, so
-    better diagnostics on many places. There are reports that this
-    patch fails on HPUX10.20, so feel free to exclude this one
   - the magic in Perl_trace seemed to be wrong
+  - make compile under 5.00404 again
 
 * Tixish/DialogBox.pm
 * Tk/ColorEditor.pm

@@ -3,3 +3,4 @@ README.patches
 MANIFEST
 Makefile.PL
 patch-srezic-tk800.patch
+Tk.pm

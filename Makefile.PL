@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: Makefile.PL,v 1.12 2003/04/23 22:07:19 eserte Exp $
+# $Id: Makefile.PL,v 1.13 2003/06/07 19:06:31 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 2001, 2002, 2003 Slaven Rezic. All rights reserved.
@@ -19,7 +19,7 @@ use Cwd;
 WriteMakefile
   (
    'NAME'	   => 'Patch::SREZIC::Tk',
-   'VERSION'       => '800_024.010',
+   'VERSION_FROM'  => 'Tk.pm',
    'PREREQ_PM'     => { Tk => 800.024 },
 
    'dist' => {'POSTOP'=>'-$(CHMOD) 644 $(DISTVNAME).tar$(SUFFIX)'},
@@ -34,10 +34,10 @@ install:
 	\@echo ""
 	\@echo "*** You have to apply the patches manually."
 	\@echo "*** 1. Grab the Tk-800.024 distribution from CPAN"
-	\@echo "       (directory authors/id/N/NI/NI-S)"
+	\@echo "       (see http://www.cpan.org/authors/id/N/NI/NI-S)"
 	\@echo "*** 2. Extract the distribution into a random directory"
 	\@echo "*** 3. Install the makepatch package from CPAN"
-	\@echo "       (directory authors/id/J/JV/JV)"
+	\@echo "       (see http://www.cpan.org/authors/id/J/JV/JV)"
 	\@echo "*** 4. Change directory to the extracted Tk distribution"
 	\@echo "*** 5. Execute"
 	\@echo "***    applypatch < /path/to/patch-srezic-tk800.patch"
